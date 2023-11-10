@@ -26,7 +26,7 @@ namespace program {
                         std::cout << "请输入原图像名称：";
                         std::string path;
                         std::cin >> path;
-                        path = _path + "/image/" + path + ".bmp";
+                        path = _path + "/input/" + path + ".bmp";
                         BMP bmp;
                         bmp.readBmp(path);
                         BMP reverse = bmp.grayScale().reverseColor();
@@ -41,7 +41,7 @@ namespace program {
                         std::cout << "请输入原图像名称：";
                         std::string path;
                         std::cin >> path;
-                        path = _path + "/image/" + path + ".bmp";
+                        path = _path + "/input/" + path + ".bmp";
                         BMP bmp;
                         bmp.readBmp(path);
                         BMP* split = bmp.splitColor();
