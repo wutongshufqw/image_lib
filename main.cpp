@@ -2,7 +2,11 @@
 #include "lib/include/program.h"
 
 int main() { // 主函数
-    Program program;
+    // 获取程序执行路径
+    char path[256];
+    getcwd(path, sizeof(path));
+    std::string path_str = path;
+    Program program(path_str); // 创建程序对象
     std::string title = "图像处理系统";
     std::string options[] = {
         "BMP图像处理",
