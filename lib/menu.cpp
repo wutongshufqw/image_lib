@@ -61,9 +61,12 @@ namespace menu {
             // 3.2 填充箭头
             if (i + 1 == select)
                 tmp += "→ ";
-            else
+            else {
                 tmp += "  ";
-
+                #if defined(_WIN32) || defined(_WIN64)
+                    tmp += " ";
+                #endif
+            }
             // 3.3 填充编号
             std::string num = std::to_string(i + 1); // 3.3.1 转换为str
             if (num.length() < numLength - 2) // 3.3.2 左侧填充空格
