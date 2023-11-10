@@ -48,10 +48,9 @@ namespace menu {
         // 1. 计算编号的长度
         int numLength = getLength(std::to_string(size)) + 2;
         // 2. 计算左侧位移
+        int totalLeft = (length - maxLength - numLength - 2) / 2;
         #if defined(_WIN32) || defined(_WIN64)
-            int totalLeft = (length - maxLength - numLength - 3) / 2;
-        #elif defined(__linux__)
-            int totalLeft = (length - maxLength - numLength - 2) / 2;
+            totalLeft -= 1;
         #endif
         // 3. 生成菜单
         std::string result;
@@ -64,6 +63,7 @@ namespace menu {
                 tmp += "→ ";
             else
                 tmp += "  ";
+
             // 3.3 填充编号
             std::string num = std::to_string(i + 1); // 3.3.1 转换为str
             if (num.length() < numLength - 2) // 3.3.2 左侧填充空格
@@ -73,7 +73,11 @@ namespace menu {
             // 3.4 菜单
             tmp += str[i];
             // 3.5 填充右侧
-            tmp += std::string(length - totalLeft - numLength - getLength(str[i]) - 3, ' ');
+            int len = length - totalLeft - numLength - getLength(str[i]) - 3;
+            #if defined(_WIN32) || defined(_WIN64)
+                len -= 1;
+            #endif
+            tmp += std::string(len, ' ');
             tmp += "│";
             result += tmp + "\n";
         }
