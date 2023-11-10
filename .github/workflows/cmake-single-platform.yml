@@ -40,6 +40,6 @@ jobs:
     - name: Archive production
       uses: actions/upload-artifact@v3
       with:
-        name: build
+        name: imglib_linux_x86_64
         path: ${{github.workspace}}/build/main
 
