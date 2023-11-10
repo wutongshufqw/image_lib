@@ -31,7 +31,7 @@ jobs:
             c_compiler: cl
             cpp_compiler: cl
             output: windows_x64
-            name: main.exe
+            name: Release/main.exe
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++

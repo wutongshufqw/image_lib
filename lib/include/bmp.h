@@ -75,7 +75,7 @@ class BMP {
             if (this == &bmp)
                 return *this;
             delete[] bmpBuf;
-            if (&colorTable)
+            if (colorTable)
                 delete[] colorTable;
             lineByte = bmp.lineByte;
             bmpBuf = new BYTE[lineByte * bmp.ihead.biHeight];
