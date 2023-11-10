@@ -48,7 +48,11 @@ namespace menu {
         // 1. 计算编号的长度
         int numLength = getLength(std::to_string(size)) + 2;
         // 2. 计算左侧位移
-        int totalLeft = (length - maxLength - numLength - 2) / 2;
+        #if defined(_WIN32) || defined(_WIN64)
+            int totalLeft = (length - maxLength - numLength - 3) / 2;
+        #elif defined(__linux__)
+            int totalLeft = (length - maxLength - numLength - 2) / 2;
+        #endif
         // 3. 生成菜单
         std::string result;
         for (int i = 0; i < size; i++) {
