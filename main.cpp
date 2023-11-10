@@ -6,6 +6,8 @@ int main() { // 主函数
     char path[256];
     #if defined(_WIN32) || defined(_WIN64)
         _getcwd(path, sizeof(path));
+        // 解决中文乱码问题
+        system("chcp 65001");
     #elif defined(__linux__)
         getcwd(path, sizeof(path));
     #endif
