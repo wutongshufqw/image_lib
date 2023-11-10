@@ -78,42 +78,74 @@ namespace menu {
 
     int scanKeyBoard() { // 获取键盘输入
         int in;
-        struct termios new_settings;
-        struct termios stored_settings;
-        tcgetattr(STDIN_FILENO, &stored_settings);
-        new_settings = stored_settings;
-        new_settings.c_lflag &= (~ICANON);
-        new_settings.c_cc[VTIME] = 0;
-        tcgetattr(STDIN_FILENO, &stored_settings);
-        new_settings.c_cc[VMIN] = 1;
-        tcsetattr(STDIN_FILENO, TCSANOW, &new_settings);
-        in = getchar();
-        tcsetattr(STDIN_FILENO, TCSANOW, &stored_settings);
-        return in;
+        #if defined(_WIN32) || defined(_WIN64)
+            return getch();
+        #elif defined(__linux__)
+            struct termios new_settings;
+            struct termios stored_settings;
+            tcgetattr(STDIN_FILENO, &stored_settings);
+            new_settings = stored_settings;
+            new_settings.c_lflag &= (~ICANON);
+            new_settings.c_cc[VTIME] = 0;
+            tcgetattr(STDIN_FILENO, &stored_settings);
+            new_settings.c_cc[VMIN] = 1;
+            tcsetattr(STDIN_FILENO, TCSANOW, &new_settings);
+            in = getchar();
+            tcsetattr(STDIN_FILENO, TCSANOW, &stored_settings);
+            return in;
+        #endif
     }
 
     int getKeyBoard(bool esc = false) { // 获取键盘输入
-        switch (scanKeyBoard()) {
-            case 27: // 特殊键
-                if (esc)
-                    return 1;
-                switch(scanKeyBoard()) {
-                    case 91: // 方向键
-                        switch(scanKeyBoard()) {
-                            case 65: // 上
-                                return 1;
-                            case 66: // 下
-                                return 2;
-                            default:
-                                return 0;
-                        }
-                    default:
-                        return 0;
-                }
-            case 10: // 回车
-                return 3;
-            default:
-                return 0;
+        #if defined(_WIN32) || defined(_WIN64)
+            switch (scanKeyBoard()) {
+                case 13: // 回车
+                    return ENTER;
+                case 27: // ESC
+                    return ESC;
+                case 224: // 特殊键
+                    switch(scanKeyBoard()) {
+                        case 72: // 上
+                            return UP;
+                        case 75: // 左
+                            return LEFT;
+                        case 77: // 右
+                            return RIGHT;
+                        case 80: // 下
+                            return DOWN;
+                        default:
+                            return 0;
+                    }
+                default:
+                    return 0;
+            }
+        #elif defined(__linux__)
+            switch (scanKeyBoard()) {
+                case 10: // 回车
+                    return ENTER;
+                case 27: // 特殊键
+                    if (esc)
+                        return ESC;
+                    switch(scanKeyBoard()) {
+                        case 91: // 方向键
+                            switch(scanKeyBoard()) {
+                                case 65: // 上
+                                    return UP;
+                                case 66: // 下
+                                    return DOWN;
+                                case 67: // 右
+                                    return RIGHT;
+                                case 68: // 左
+                                    return LEFT;
+                                default:
+                                    return 0;
+                            }
+                        default:
+                            return 0;
+                    }
+                default:
+                    return 0;
+        #endif
         }
     }
 }
@@ -125,13 +157,13 @@ int Menu::start() { // 开始菜单
         while(!(key = menu::getKeyBoard()))
             show();
         switch (key) {
-            case 1:
+            case menu::UP:
                 up();
                 break;
-            case 2:
+            case menu::DOWN:
                 down();
                 break;
-            case 3:
+            case menu::ENTER:
                 return _selected;
             default:
                 break;
@@ -153,7 +185,7 @@ void Menu::show() { // 显示菜单
 }
 
 void Menu::clear() { // 清空屏幕
-    system("clear");
+    system(menu::CLEAR);
 }
 
 void Menu::up() { // 上移
@@ -171,5 +203,5 @@ void Menu::down() { // 下移
 }
 
 void Menu::esc() { // 读取ESC
-    while (menu::getKeyBoard(true) != 1);
+    while (menu::getKeyBoard(true) != menu::ESC);
 }

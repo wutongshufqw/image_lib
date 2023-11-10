@@ -2,8 +2,27 @@
 #define MENU_H
 #include <iostream>
 #include <string>
-#include <termio.h>
-#include <unistd.h>
+
+#if defined(_WIN32) || defined(_WIN64)
+    #include <conio.h>
+#elif defined(__linux__)
+    #include <termios.h>
+    #include <unistd.h>
+#endif
+
+namespace menu {
+    const unsigned char UP = 1;
+    const unsigned char DOWN = 2;
+    const unsigned char LEFT = 3;
+    const unsigned char RIGHT = 4;
+    const unsigned char ENTER = 5;
+    const unsigned char ESC = 6;
+    #if defined(_WIN32) || defined(_WIN64)
+        const char CLEAR[] = "cls";
+    #elif defined(__linux__)
+        const char CLEAR[] = "clear";
+    #endif
+}
 
 class Menu {
     private:
