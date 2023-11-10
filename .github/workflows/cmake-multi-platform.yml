@@ -76,7 +76,7 @@ jobs:
 
     - name: Upload Artifact
       # Upload the build directory as an artifact. This allows you to download the build directory from the GitHub UI.
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.os }}-build
         path: ${{ steps.strings.outputs.build-output-dir }}
