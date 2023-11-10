@@ -77,10 +77,10 @@ namespace menu {
     }
 
     int scanKeyBoard() { // 获取键盘输入
-        int in;
         #if defined(_WIN32) || defined(_WIN64)
-            return getch();
+            return _getch();
         #elif defined(__linux__)
+            int in;
             struct termios new_settings;
             struct termios stored_settings;
             tcgetattr(STDIN_FILENO, &stored_settings);
@@ -145,8 +145,8 @@ namespace menu {
                     }
                 default:
                     return 0;
+            }
         #endif
-        }
     }
 }
 

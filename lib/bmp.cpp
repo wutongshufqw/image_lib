@@ -86,7 +86,7 @@ void BMP::_grayScale() { // 灰度化(内部函数)
     BYTE *grayBuf = new BYTE[lineByte * ihead.biHeight / 3];
     for (LONG i = 0; i < ihead.biHeight; i++)
         for (LONG j = 0; j < ihead.biWidth; j++) {
-            gray = 0.114 * bmpBuf[i * lineByte + j * 3] + 0.587 * bmpBuf[i * lineByte + j * 3 + 1] + 0.299 * bmpBuf[i * lineByte + j * 3 + 2];
+            gray = (int) (0.114 * bmpBuf[i * lineByte + j * 3] + 0.587 * bmpBuf[i * lineByte + j * 3 + 1] + 0.299 * bmpBuf[i * lineByte + j * 3 + 2]);
             grayBuf[i * ihead.biWidth + j] = gray;
         }
     // 更新每行字节数
