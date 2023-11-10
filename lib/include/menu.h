@@ -2,12 +2,13 @@
 #define MENU_H
 #include <iostream>
 #include <string>
-#include <unistd.h>
 
 #if defined(_WIN32) || defined(_WIN64)
     #include <conio.h>
+    #include <direct.h>
 #elif defined(__linux__)
     #include <termios.h>
+    #include <unistd.h>
 #endif
 
 namespace menu {

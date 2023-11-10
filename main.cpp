@@ -4,7 +4,11 @@
 int main() { // 主函数
     // 获取程序执行路径
     char path[256];
-    getcwd(path, sizeof(path));
+    #if defined(_WIN32) || defined(_WIN64)
+        _getcwd(path, sizeof(path));
+    #elif defined(__linux__)
+        getcwd(path, sizeof(path));
+    #endif
     std::string path_str = path;
     Program program(path_str); // 创建程序对象
     std::string title = "图像处理系统";

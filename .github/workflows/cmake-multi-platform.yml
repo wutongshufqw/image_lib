@@ -30,12 +30,18 @@ jobs:
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
+            output: windows_x64
+            name: main.exe
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
+            output: linux_x64_gcc
+            name: main
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
+            output: linux_x64_clang
+            name: main
         exclude:
           - os: windows-latest
             c_compiler: gcc
@@ -78,5 +84,5 @@ jobs:
       # Upload the build directory as an artifact. This allows you to download the build directory from the GitHub UI.
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ matrix.os }}-build
-        path: ${{ steps.strings.outputs.build-output-dir }}
+        name: ${{ matrix.output }}
+        path: ${{ steps.strings.outputs.build-output-dir }}/${{ matrix.name }}
