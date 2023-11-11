@@ -1,5 +1,3 @@
-project(lib)
-
 file(GLOB LIB_SRC "*.cpp")
 
 add_library(lib ${LIB_SRC})

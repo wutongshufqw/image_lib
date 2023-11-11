@@ -169,9 +169,11 @@ int Menu::start() { // 开始菜单
             show();
         switch (key) {
             case menu::UP:
+            case menu::LEFT:
                 up();
                 break;
             case menu::DOWN:
+            case menu::RIGHT:
                 down();
                 break;
             case menu::ENTER:
