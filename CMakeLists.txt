@@ -10,6 +10,7 @@ add_executable(main main.cpp)
 target_link_libraries(main lib)
 
 set(CMAKE_BUILD_TYPE Debug)
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
 
 add_compile_options(-Wall -g)
 if(MSVC)
