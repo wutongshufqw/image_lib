@@ -8,7 +8,7 @@ class Filter {
 public:
     Filter() = default;
     virtual ~Filter() = default;
-    virtual void apply(BMP &image) = 0;
+    virtual BMP apply(BMP &image) = 0;
 };
 
 //  均值滤波器
@@ -17,7 +17,7 @@ private:
     int _size;
 public:
     MeanFilter(int size);
-    void apply(BMP &image);
+    BMP apply(BMP &image);
 };
 
 //  中值滤波器
@@ -26,7 +26,7 @@ private:
     int _size;
 public:
     MedianFilter(int size);
-    void apply(BMP &image);
+    BMP apply(BMP &image);
 };
 
 #endif

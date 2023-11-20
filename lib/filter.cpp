@@ -5,14 +5,17 @@ MeanFilter::MeanFilter(int size) {
     _size = size;
 }
 
-void MeanFilter::apply(BMP &image) {
+BMP MeanFilter::apply(BMP &image) {
+    BMP bmp;
     if (image.getInfoHeader().biBitCount != 8) // 仅支持灰度图像
-        image.grayScale(true);
+        bmp = image.grayScale();
+    else
+        bmp = BMP(image);
 
-    int width = image.getInfoHeader().biWidth; // 图像宽度
-    int lineByte = image.getLineByte(); // 每行字节数
-    int height = image.getInfoHeader().biHeight; // 图像高度
-    BYTE *bmpBuf = image.getBmpBuf(); // 图像数据
+    int width = bmp.getInfoHeader().biWidth; // 图像宽度
+    int lineByte = bmp.getLineByte(); // 每行字节数
+    int height = bmp.getInfoHeader().biHeight; // 图像高度
+    BYTE *bmpBuf = bmp.getBmpBuf(); // 图像数据
 
     BYTE *temp = new BYTE[lineByte * height]; //  申请临时空间
     std::copy(bmpBuf, bmpBuf + lineByte * height, temp); //  拷贝图像数据
@@ -35,6 +38,7 @@ void MeanFilter::apply(BMP &image) {
             bmpBuf[i * lineByte + j] = sum / count;
         }
     }
+    return bmp;
 }
 
 //  中值滤波器
@@ -42,14 +46,17 @@ MedianFilter::MedianFilter(int size) {
     _size = size;
 }
 
-void MedianFilter::apply(BMP &image) {
+BMP MedianFilter::apply(BMP &image) {
+    BMP bmp;
     if (image.getInfoHeader().biBitCount != 8) // 仅支持灰度图像
-        image.grayScale(true);
+        bmp = image.grayScale();
+    else
+        bmp = BMP(image);
 
-    int width = image.getInfoHeader().biWidth; // 图像宽度
-    int lineByte = image.getLineByte(); // 每行字节数
-    int height = image.getInfoHeader().biHeight; // 图像高度
-    BYTE *bmpBuf = image.getBmpBuf(); // 图像数据
+    int width = bmp.getInfoHeader().biWidth; // 图像宽度
+    int lineByte = bmp.getLineByte(); // 每行字节数
+    int height = bmp.getInfoHeader().biHeight; // 图像高度
+    BYTE *bmpBuf = bmp.getBmpBuf(); // 图像数据
 
     BYTE *temp = new BYTE[lineByte * height]; //  申请临时空间
     std::copy(bmpBuf, bmpBuf + lineByte * height, temp); //  拷贝图像数据
@@ -71,4 +78,5 @@ void MedianFilter::apply(BMP &image) {
             bmpBuf[i * lineByte + j] = arr[count / 2]; //  取中值
         }
     }
+    return bmp;
 }

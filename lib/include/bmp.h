@@ -90,7 +90,7 @@ class BMP {
 
         void readBmp(std::string filename); // 读取位图
         void writeBmp(std::string filename); // 写入位图
-        BMP grayScale(bool immediate = false); // 灰度化
+        BMP grayScale(); // 灰度化
         BMP reverseColor(); // 反色
         BMP *splitColor(); // 拆分RGB通道
 

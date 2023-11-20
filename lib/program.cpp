@@ -137,7 +137,7 @@ namespace program {
                         int size;
                         std::cin >> size;
                         MeanFilter filter(size);
-                        filter.apply(bmp);
+                        bmp = filter.apply(bmp);
                         std::cout << "请输入均值滤波器图像名称：";
                         std::cin >> path;
                         path = _path + "/output/" + path + ".bmp";
@@ -156,7 +156,7 @@ namespace program {
                         int size;
                         std::cin >> size;
                         MedianFilter filter(size);
-                        filter.apply(bmp);
+                        bmp = filter.apply(bmp);
                         std::cout << "请输入中值滤波器图像名称：";
                         std::cin >> path;
                         path = _path + "/output/" + path + ".bmp";
