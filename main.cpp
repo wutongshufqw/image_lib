@@ -16,13 +16,14 @@ int main() { // 主函数
     std::string title = "图像处理系统";
     std::string options[] = {
         "BMP图像处理",
+        "直方图处理",
         "退出"
     };
     std::string footer = "按 ENTER 以继续";
     Menu menu(sizeof(options) / sizeof(options[0]), options, title, footer);
     while (true) {
         int key = menu.start();
-        if (key == 2) {
+        if (key == sizeof(options) / sizeof(options[0])) {
             menu.clear();
             break;
         } else

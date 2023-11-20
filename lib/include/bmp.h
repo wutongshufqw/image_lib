@@ -40,7 +40,7 @@ typedef struct tagRGBQUAD { // 位图颜色表
 #pragma pack(pop)
 
 class BMP {
-    private:
+    protected:
         int lineByte = 0; // 每行字节数
         BYTE *bmpBuf = nullptr; // 位图数据
         int colorTableSize = 0; // 调色板大小
