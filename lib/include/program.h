@@ -1,3 +1,5 @@
+#ifndef PROGRAM_H
+#define PROGRAM_H
 #include <vector>
 #include "menu.h"
 
@@ -9,3 +11,4 @@ class Program {
         Program(std::string);
         void start(int index);
 };
+#endif

@@ -105,10 +105,15 @@ void BMP::_grayScale() { // 灰度化(内部函数)
     std::cout << "灰度化成功" << std::endl;
 }
 
-BMP BMP::grayScale() { // 灰度化
-    BMP bmp(*this);
-    bmp._grayScale();
-    return bmp;
+BMP BMP::grayScale(bool immediate) { // 灰度化
+    if (immediate) {
+        _grayScale();
+        return *this;
+    } else {
+        BMP bmp(*this);
+        bmp._grayScale();
+        return bmp;
+    }
 }
 
 void BMP::_reverseColor() { // 反色(内部函数)

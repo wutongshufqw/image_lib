@@ -1,3 +1,5 @@
+#ifndef HISTOGRAM_H
+#define HISTOGRAM_H
 #include <cstring>
 #include "bmp.h"
 
@@ -12,3 +14,4 @@ class Histogram: public BMP {
         Histogram statistics();
         Histogram balance();
 };
+#endif

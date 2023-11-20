@@ -1,4 +1,5 @@
 #include "include/bmp.h"
+#include "include/filter.h"
 #include "include/histogram.h"
 #include "include/program.h"
 
@@ -119,6 +120,61 @@ namespace program {
             menu.esc();
         }
     }
+
+    void program3(Menu menu, std::string _path) {
+        while (true) {
+            int key = menu.start();
+            try {
+                switch (key) {
+                    case 1: {
+                        std::cout << "请输入原图像名称：";
+                        std::string path;
+                        std::cin >> path;
+                        path = _path + "/input/" + path + ".bmp";
+                        BMP bmp;
+                        bmp.readBmp(path);
+                        std::cout << "请输入滤波器大小：";
+                        int size;
+                        std::cin >> size;
+                        MeanFilter filter(size);
+                        filter.apply(bmp);
+                        std::cout << "请输入均值滤波器图像名称：";
+                        std::cin >> path;
+                        path = _path + "/output/" + path + ".bmp";
+                        bmp.writeBmp(path);
+                        std::cout << "均值滤波器图像已保存至: " << path << std::endl;
+                        break;
+                    }
+                    case 2: {
+                        std::cout << "请输入原图像名称：";
+                        std::string path;
+                        std::cin >> path;
+                        path = _path + "/input/" + path + ".bmp";
+                        BMP bmp;
+                        bmp.readBmp(path);
+                        std::cout << "请输入滤波器大小：";
+                        int size;
+                        std::cin >> size;
+                        MedianFilter filter(size);
+                        filter.apply(bmp);
+                        std::cout << "请输入中值滤波器图像名称：";
+                        std::cin >> path;
+                        path = _path + "/output/" + path + ".bmp";
+                        bmp.writeBmp(path);
+                        std::cout << "中值滤波器图像已保存至: " << path << std::endl;
+                        break;
+                    }
+                    default:
+                        return;
+                }
+            } catch (std::exception e) {
+                std::cout << "错误: " << e.what() << std::endl;
+            }
+            // 清空输入缓冲区
+            std::cout << "按 ESC 以继续";
+            menu.esc();
+        }
+    }
 }
 
 Program::Program(std::string path) {
@@ -134,6 +190,11 @@ Program::Program(std::string path) {
         "直方图均衡化",
         "返回上一级"
     }, "直方图处理", "按 ENTER 以继续"));
+    _menus.push_back(Menu(3, new std::string[3] {
+        "均值滤波器",
+        "中值滤波器",
+        "返回上一级"
+    }, "图像滤波处理", "按 ENTER 以继续"));
 }
 
 void Program::start(int key) {
@@ -143,6 +204,9 @@ void Program::start(int key) {
             break;
         case 2:
             program::program2(_menus[1], _path);
+            break;
+        case 3:
+            program::program3(_menus[2], _path);
             break;
         default:
             break;

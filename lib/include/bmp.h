@@ -90,8 +90,24 @@ class BMP {
 
         void readBmp(std::string filename); // 读取位图
         void writeBmp(std::string filename); // 写入位图
-        BMP grayScale(); // 灰度化
+        BMP grayScale(bool immediate = false); // 灰度化
         BMP reverseColor(); // 反色
         BMP *splitColor(); // 拆分RGB通道
+
+        int getLineByte() { // 获取每行字节数
+            return lineByte;
+        };
+
+        BMPFILEHEADER getFileHeader() { // 获取文件头
+            return fhead;
+        };
+
+        BMPINFOHEADER getInfoHeader() { // 获取信息头
+            return ihead;
+        };
+
+        BYTE *getBmpBuf() { // 获取位图数据
+            return bmpBuf;
+        };
 };
 #endif

@@ -17,6 +17,7 @@ int main() { // 主函数
     std::string options[] = {
         "BMP图像处理",
         "直方图处理",
+        "图像滤波处理",
         "退出"
     };
     std::string footer = "按 ENTER 以继续";
