@@ -1,9 +1,7 @@
-#include "include/bmp.h"
-#include "include/filter.h"
-#include "include/histogram.h"
 #include "include/program.h"
 
 namespace program {
+
     void program1(Menu menu, std::string _path) {
         while (true) {
             int key = menu.start();
@@ -175,6 +173,95 @@ namespace program {
             menu.esc();
         }
     }
+
+    void program4(Menu menu, std::string _path) {
+        while (true) {
+            int key = menu.start();
+            try {
+                switch (key) {
+                    case 1: {
+                        std::cout << "请输入原图像名称：";
+                        std::string path;
+                        std::cin >> path;
+                        path = _path + "/input/" + path + ".bmp";
+                        BMP bmp;
+                        bmp.readBmp(path);
+                        std::cout << "请输入缩放比例：";
+                        float ratio;
+                        std::cin >> ratio;
+                        BMP scale = Exchange::scale(bmp, ratio);
+                        std::cout << "请输入缩放图像名称：";
+                        std::cin >> path;
+                        path = _path + "/output/" + path + ".bmp";
+                        scale.writeBmp(path);
+                        std::cout << "缩放图像已保存至: " << path << std::endl;
+                        break;
+                    }
+                    case 2: {
+                        std::cout << "请输入原图像名称：";
+                        std::string path;
+                        std::cin >> path;
+                        path = _path + "/input/" + path + ".bmp";
+                        BMP bmp;
+                        bmp.readBmp(path);
+                        std::cout << "请输入平移距离[x, y]：";
+                        int x, y;
+                        std::cin >> x >> y;
+                        BMP translate = Exchange::translate(bmp, x, y);
+                        std::cout << "请输入平移图像名称：";
+                        std::cin >> path;
+                        path = _path + "/output/" + path + ".bmp";
+                        translate.writeBmp(path);
+                        std::cout << "平移图像已保存至: " << path << std::endl;
+                        break;
+                    }
+                    case 3: {
+                        std::cout << "请输入原图像名称：";
+                        std::string path;
+                        std::cin >> path;
+                        path = _path + "/input/" + path + ".bmp";
+                        BMP bmp;
+                        bmp.readBmp(path);
+                        std::cout << "请输入镜像模式(1:水平, 2:垂直, 3:对角)：";
+                        int mode;
+                        std::cin >> mode;
+                        BMP mirror = Exchange::mirror(bmp, mode);
+                        std::cout << "请输入镜像图像名称：";
+                        std::cin >> path;
+                        path = _path + "/output/" + path + ".bmp";
+                        mirror.writeBmp(path);
+                        std::cout << "镜像图像已保存至: " << path << std::endl;
+                        break;
+                    }
+                    case 4: {
+                        std::cout << "请输入原图像名称：";
+                        std::string path;
+                        std::cin >> path;
+                        path = _path + "/input/" + path + ".bmp";
+                        BMP bmp;
+                        bmp.readBmp(path);
+                        std::cout << "请输入旋转角度：";
+                        int angle;
+                        std::cin >> angle;
+                        BMP rotate = Exchange::rotate(bmp, angle);
+                        std::cout << "请输入旋转图像名称：";
+                        std::cin >> path;
+                        path = _path + "/output/" + path + ".bmp";
+                        rotate.writeBmp(path);
+                        std::cout << "旋转图像已保存至: " << path << std::endl;
+                        break;
+                    }
+                    default:
+                        return;
+                }
+            } catch (std::exception e) {
+                std::cout << "错误: " << e.what() << std::endl;
+            }
+            // 清空输入缓冲区
+            std::cout << "按 ESC 以继续";
+            menu.esc();
+        }
+    }
 }
 
 Program::Program(std::string path) {
@@ -195,6 +282,14 @@ Program::Program(std::string path) {
         "中值滤波器",
         "返回上一级"
     }, "图像滤波处理", "按 ENTER 以继续"));
+    _menus.push_back(Menu(6, new std::string[6] {
+        "图像缩放",
+        "图像平移",
+        "图像镜像",
+        "图像旋转",
+        "图像透视",
+        "返回上一级"
+    }, "图像变换", "按 ENTER 以继续"));
 }
 
 void Program::start(int key) {
@@ -207,6 +302,9 @@ void Program::start(int key) {
             break;
         case 3:
             program::program3(_menus[2], _path);
+            break;
+        case 4:
+            program::program4(_menus[3], _path);
             break;
         default:
             break;

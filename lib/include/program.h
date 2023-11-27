@@ -1,6 +1,11 @@
 #ifndef PROGRAM_H
 #define PROGRAM_H
+#include <list>
 #include <vector>
+#include "bmp.h"
+#include "exchange.h"
+#include "filter.h"
+#include "histogram.h"
 #include "menu.h"
 
 class Program {

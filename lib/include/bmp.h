@@ -50,43 +50,12 @@ class BMP {
         void _grayScale(); // 灰度化(内部函数)
         void _reverseColor(); // 反色(内部函数)
     public:
-        BMP() { // 构造函数
-            lineByte = 0; // 每行字节数
-            bmpBuf = new unsigned char; // 位图数据
-        };
+        BMP(); // 默认构造函数
+        BMP(const BMP &bmp); // 拷贝构造函数
+        BMP(int width, int height, int bitCount = 24, bool real = true); // 创建空白画布
+        ~BMP(); // 析构函数
 
-        ~BMP() { // 析构函数
-            delete[] bmpBuf; // 释放位图数据
-            delete[] colorTable; // 释放调色板
-        };
-
-        BMP(const BMP &bmp) { // 拷贝构造函数
-            lineByte = bmp.lineByte;
-            bmpBuf = new BYTE[lineByte * bmp.ihead.biHeight];
-            std::copy(bmp.bmpBuf, bmp.bmpBuf + lineByte * bmp.ihead.biHeight, bmpBuf);
-            colorTableSize = bmp.colorTableSize;
-            colorTable = new RGBQUAD[colorTableSize];
-            std::copy(bmp.colorTable, bmp.colorTable + colorTableSize, colorTable);
-            fhead = bmp.fhead;
-            ihead = bmp.ihead;
-        };
-
-        BMP& operator= (const BMP &bmp) { // 赋值运算符重载
-            if (this == &bmp)
-                return *this;
-            delete[] bmpBuf;
-            if (colorTable)
-                delete[] colorTable;
-            lineByte = bmp.lineByte;
-            bmpBuf = new BYTE[lineByte * bmp.ihead.biHeight];
-            std::copy(bmp.bmpBuf, bmp.bmpBuf + lineByte * bmp.ihead.biHeight, bmpBuf);
-            colorTableSize = bmp.colorTableSize;
-            colorTable = new RGBQUAD[colorTableSize];
-            std::copy(bmp.colorTable, bmp.colorTable + colorTableSize, colorTable);
-            fhead = bmp.fhead;
-            ihead = bmp.ihead;
-            return *this;
-        };
+        BMP& operator= (const BMP &bmp); // 赋值运算符重载
 
         void readBmp(std::string filename); // 读取位图
         void writeBmp(std::string filename); // 写入位图
@@ -94,20 +63,13 @@ class BMP {
         BMP reverseColor(); // 反色
         BMP *splitColor(); // 拆分RGB通道
 
-        int getLineByte() { // 获取每行字节数
-            return lineByte;
-        };
+        int getLineByte(); // 获取每行字节数
+        BMPFILEHEADER getFileHeader(); // 获取文件头
+        BMPINFOHEADER getInfoHeader(); // 获取信息头
+        BYTE* getBmpBuf(); // 获取位图数据
+        BYTE getPixel(int x, int y); // 获取像素
+    
 
-        BMPFILEHEADER getFileHeader() { // 获取文件头
-            return fhead;
-        };
-
-        BMPINFOHEADER getInfoHeader() { // 获取信息头
-            return ihead;
-        };
-
-        BYTE *getBmpBuf() { // 获取位图数据
-            return bmpBuf;
-        };
+        void setPixel(int x, int y, BYTE pixel); // 设置像素
 };
 #endif
