@@ -65,6 +65,8 @@ Histogram::Histogram(const Histogram& histogram) : BMP(histogram) {
     }
 }
 
+Histogram::Histogram(const BMP& bmp) : BMP(bmp) {}
+
 Histogram Histogram::statistics() {
     Histogram histogram(*this);
     histogram._statistics(true);
@@ -75,4 +77,8 @@ Histogram Histogram::balance() {
     Histogram histogram(*this);
     histogram._balance();
     return histogram;
+}
+
+int* Histogram::getHistogram() {
+    return _histogram;
 }

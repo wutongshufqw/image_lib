@@ -303,11 +303,23 @@ BYTE* BMP::getBmpBuf() { // 获取位图数据
     return bmpBuf;
 }
 
-BYTE BMP::getPixel(int x, int y) { // 获取像素
-    return bmpBuf[y * lineByte + x];
+BYTE* BMP::getPixel(int x, int y) { // 获取像素
+    return &bmpBuf[y * lineByte + x];
 }
 
 
 void BMP::setPixel(int x, int y, BYTE pixel) { // 设置像素
     bmpBuf[y * lineByte + x] = pixel;
+}
+
+void BMP::setPixel(int x, int y, BYTE* pixel) { // 设置像素
+    bmpBuf[y * lineByte + x * 3] = *pixel;
+    bmpBuf[y * lineByte + x * 3 + 1] = *(pixel + 1);
+    bmpBuf[y * lineByte + x * 3 + 2] = *(pixel + 2);
+}
+
+void BMP::setPixel(int x, int y, BYTE red, BYTE green, BYTE blue) { // 设置像素
+    bmpBuf[y * lineByte + x * 3] = blue;
+    bmpBuf[y * lineByte + x * 3 + 1] = green;
+    bmpBuf[y * lineByte + x * 3 + 2] = red;
 }

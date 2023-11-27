@@ -67,9 +67,10 @@ class BMP {
         BMPFILEHEADER getFileHeader(); // 获取文件头
         BMPINFOHEADER getInfoHeader(); // 获取信息头
         BYTE* getBmpBuf(); // 获取位图数据
-        BYTE getPixel(int x, int y); // 获取像素
+        BYTE* getPixel(int x, int y); // 获取像素
     
-
         void setPixel(int x, int y, BYTE pixel); // 设置像素
+        void setPixel(int x, int y, BYTE* pixel); // 设置像素
+        void setPixel(int x, int y, BYTE red, BYTE green, BYTE blue); // 设置像素
 };
 #endif

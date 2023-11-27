@@ -13,11 +13,9 @@ BMP Exchange::scale(BMP &image, float ratio) { // 缩放
                 // 每三个字节为一组，分别缩放
                 int x = (int) (i * 3 / ratio) / 3 * 3;
                 int y = (int) (j / ratio);
-                newImage.setPixel(i * 3, j, image.getPixel(x, y)); // 设置新图像像素
-                newImage.setPixel(i * 3 + 1, j, image.getPixel(x + 1, y)); // 设置新图像像素
-                newImage.setPixel(i * 3 + 2, j, image.getPixel(x + 2, y)); // 设置新图像像素
+                newImage.setPixel(i, j, image.getPixel(x, y)); // 设置新图像像素
             } else if (bitCount == 8) // 8位图像
-                newImage.setPixel(i, j, image.getPixel((int) (i / ratio), (int) (j / ratio))); // 设置新图像像素
+                newImage.setPixel(i, j, *image.getPixel((int) (i / ratio), (int) (j / ratio))); // 设置新图像像素
             else {
                 std::cout << "错误：不支持的颜色表大小" << std::endl;
                 break;
@@ -39,11 +37,9 @@ BMP Exchange::translate(BMP &image, int x, int y) {
                 continue; // 越界
             if (bitCount == 24) { // 24位图像
                 // 每三个字节为一组，分别平移
-                newImage.setPixel(i * 3, j, image.getPixel(x1 * 3, y1)); // 设置新图像像素
-                newImage.setPixel(i * 3 + 1, j, image.getPixel(x1 * 3 + 1, y1)); // 设置新图像像素
-                newImage.setPixel(i * 3 + 2, j, image.getPixel(x1 * 3 + 2, y1)); // 设置新图像像素
+                newImage.setPixel(i, j, image.getPixel(x1 * 3, y1)); // 设置新图像像素
             } else if (bitCount == 8) // 8位图像
-                newImage.setPixel(i, j, image.getPixel(x1, y1)); // 设置新图像像素
+                newImage.setPixel(i, j, *image.getPixel(x1, y1)); // 设置新图像像素
             else {
                 std::cout << "错误：不支持的颜色表大小" << std::endl;
                 break;
@@ -74,9 +70,7 @@ BMP Exchange::mirror(BMP &image, int mode) {
                     std::cout << "错误：不支持的镜像模式" << std::endl;
                     break;
                 }
-                newImage.setPixel(i * 3, j, image.getPixel(x, y)); // 设置新图像像素
-                newImage.setPixel(i * 3 + 1, j, image.getPixel(x + 1, y)); // 设置新图像像素
-                newImage.setPixel(i * 3 + 2, j, image.getPixel(x + 2, y)); // 设置新图像像素
+                newImage.setPixel(i, j, image.getPixel(x, y)); // 设置新图像像素
             } else if (bitCount == 8) { // 8位图像
                 int x = i;
                 int y = j;
@@ -91,7 +85,7 @@ BMP Exchange::mirror(BMP &image, int mode) {
                     std::cout << "错误：不支持的镜像模式" << std::endl;
                     break;
                 }
-                newImage.setPixel(i, j, image.getPixel(x, y)); // 设置新图像像素
+                newImage.setPixel(i, j, *image.getPixel(x, y)); // 设置新图像像素
             } else {
                 std::cout << "错误：不支持的颜色表大小" << std::endl;
                 break;
@@ -126,11 +120,9 @@ BMP Exchange::rotate(BMP &image, int angle) {
                 continue; // 越界
             if (bitCount == 24) { // 24位图像
                 // 每三个字节为一组，分别旋转
-                newImage.setPixel(i * 3, j, image.getPixel(x * 3, y)); // 设置新图像像素
-                newImage.setPixel(i * 3 + 1, j, image.getPixel(x * 3 + 1, y)); // 设置新图像像素
-                newImage.setPixel(i * 3 + 2, j, image.getPixel(x * 3 + 2, y)); // 设置新图像像素
+                newImage.setPixel(i, j, image.getPixel(x * 3, y)); // 设置新图像像素
             } else if (bitCount == 8) // 8位图像
-                newImage.setPixel(i, j, image.getPixel(x, y)); // 设置新图像像素
+                newImage.setPixel(i, j, *image.getPixel(x, y)); // 设置新图像像素
             else {
                 std::cout << "错误：不支持的颜色表大小" << std::endl;
                 break;
@@ -206,11 +198,9 @@ BMP Exchange::perspective(BMP &image, int point[8], int times) {
                 continue; // 越界
             if (bitCount == 24) { // 24位图像
                 // 每三个字节为一组，分别映射
-                newImage.setPixel(x * 3, y, image.getPixel(i * 3, j)); // 设置新图像像素
-                newImage.setPixel(x * 3 + 1, y, image.getPixel(i * 3 + 1, j)); // 设置新图像像素
-                newImage.setPixel(x * 3 + 2, y, image.getPixel(i * 3 + 2, j)); // 设置新图像像素
+                newImage.setPixel(x, y, image.getPixel(i * 3, j)); // 设置新图像像素
             } else if (bitCount == 8) // 8位图像
-                newImage.setPixel(x, y, image.getPixel(i, j)); // 设置新图像像素
+                newImage.setPixel(x, y, *image.getPixel(i, j)); // 设置新图像像素
             else {
                 std::cout << "错误：不支持的颜色表大小" << std::endl;
                 break;

@@ -11,7 +11,10 @@ class Histogram: public BMP {
     public:
         Histogram() = default;
         Histogram(const Histogram& histogram);
+        Histogram(const BMP& bmp);
         Histogram statistics();
         Histogram balance();
+
+        int* getHistogram();
 };
 #endif

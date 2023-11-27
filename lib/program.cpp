@@ -122,48 +122,36 @@ namespace program {
         while (true) {
             int key = menu.start();
             try {
+                if (key == 3)
+                    return;
+                Filter *filter;
+                std::cout << "请输入原图像名称: ";
+                std::string path;
+                std::cin >> path;
+                path = _path + "/input/" + path + ".bmp";
+                BMP bmp;
+                bmp.readBmp(path);
+                if (bmp.getInfoHeader().biBitCount != 8)
+                    bmp = bmp.grayScale();
+                std::cout << "请输入滤波卷积核大小: ";
+                int size;
+                std::cin >> size;
                 switch (key) {
-                    case 1: {
-                        std::cout << "请输入原图像名称: ";
-                        std::string path;
-                        std::cin >> path;
-                        path = _path + "/input/" + path + ".bmp";
-                        BMP bmp;
-                        bmp.readBmp(path);
-                        std::cout << "请输入滤波器大小: ";
-                        int size;
-                        std::cin >> size;
-                        MeanFilter filter(size);
-                        bmp = filter.apply(bmp);
-                        std::cout << "请输入均值滤波器图像名称: ";
-                        std::cin >> path;
-                        path = _path + "/output/" + path + ".bmp";
-                        bmp.writeBmp(path);
-                        std::cout << "均值滤波器图像已保存至: " << path << std::endl;
+                    case 1:
+                        filter = new MeanFilter(size);
                         break;
-                    }
-                    case 2: {
-                        std::cout << "请输入原图像名称: ";
-                        std::string path;
-                        std::cin >> path;
-                        path = _path + "/input/" + path + ".bmp";
-                        BMP bmp;
-                        bmp.readBmp(path);
-                        std::cout << "请输入滤波器大小: ";
-                        int size;
-                        std::cin >> size;
-                        MedianFilter filter(size);
-                        bmp = filter.apply(bmp);
-                        std::cout << "请输入中值滤波器图像名称: ";
-                        std::cin >> path;
-                        path = _path + "/output/" + path + ".bmp";
-                        bmp.writeBmp(path);
-                        std::cout << "中值滤波器图像已保存至: " << path << std::endl;
+                    case 2:
+                        filter = new MedianFilter(size);
                         break;
-                    }
                     default:
                         return;
                 }
+                BMP result = filter->apply(bmp);
+                std::cout << "请输入滤波图像名称: ";
+                std::cin >> path;
+                path = _path + "/output/" + path + ".bmp";
+                result.writeBmp(path);
+                std::cout << "滤波图像已保存至: " << path << std::endl;
             } catch (std::exception e) {
                 std::cout << "错误: " << e.what() << std::endl;
             }
@@ -283,6 +271,54 @@ namespace program {
             menu.esc();
         }
     }
+
+    void program5(Menu menu, std::string _path) {
+        while (true) {
+            int key = menu.start();
+            try {
+                if (key == 4)
+                    return;
+                HistogramThreshold *threshold;
+                std::cout << "请输入原图像名称: ";
+                std::string path;
+                std::cin >> path;
+                path = _path + "/input/" + path + ".bmp";
+                BMP bmp;
+                bmp.readBmp(path);
+                if (bmp.getInfoHeader().biBitCount != 8)
+                    bmp = bmp.grayScale();
+                switch (key) {
+                    case 1:
+                        threshold = new HistogramThresholdGiven(bmp);
+                        break;
+                    case 2:
+                        threshold = new HistogramThresholdIterative(bmp);
+                        break;
+                    case 3:
+                        threshold = new HistogramThresholdOtsu(bmp);
+                        break;
+                    default:
+                        return;
+                }
+                ThresholdType result = threshold->threshold();
+                std::cout << "请输入给定阈值直方图: ";
+                std::cin >> path;
+                path = _path + "/output/" + path + ".bmp";
+                result.histogram.writeBmp(path);
+                std::cout << "给定阈值直方图已保存至: " << path << std::endl;
+                std::cout << "请输入给定阈值分割图像: ";
+                std::cin >> path;
+                path = _path + "/output/" + path + ".bmp";
+                result.results[0].writeBmp(path);
+                std::cout << "给定阈值分割图像已保存至: " << path << std::endl;
+            } catch (std::exception e) {
+                std::cout << "错误: " << e.what() << std::endl;
+            }
+            // 清空输入缓冲区
+            std::cout << "按 ESC 以继续";
+            menu.esc();
+        }
+    }
 }
 
 Program::Program(std::string path) {
@@ -311,6 +347,12 @@ Program::Program(std::string path) {
         "图像透视",
         "返回上一级"
     }, "图像变换", "按 ENTER 以继续"));
+    _menus.push_back(Menu(4, new std::string[4] {
+        "给定阈值T",
+        "迭代阈值法",
+        "Ostu",
+        "返回上一级"
+    }, "图像变换", "按 ENTER 以继续"));
 }
 
 void Program::start(int key) {
@@ -326,6 +368,9 @@ void Program::start(int key) {
             break;
         case 4:
             program::program4(_menus[3], _path);
+            break;
+        case 5:
+            program::program5(_menus[4], _path);
             break;
         default:
             break;
