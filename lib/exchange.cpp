@@ -3,136 +3,107 @@
 BMP Exchange::scale(BMP &image, float ratio) { // 缩放
     int width = image.getInfoHeader().biWidth; // 图像宽度
     int height = image.getInfoHeader().biHeight; // 图像高度
-    int newWidth = width * ratio; // 新图像宽度
-    int newHeight = height * ratio; // 新图像高度
-    BMP newImage(newWidth, newHeight, image.getInfoHeader().biBitCount, false); // 新图像
-    for (int i = 0; i < newHeight; i++) { // 遍历新图像
-        for (int j = 0; j < newWidth; j++) { // 遍历新图像
-            int x = j / ratio; // 原图像坐标
-            int y = i / ratio; // 原图像坐标
-            newImage.setPixel(j, i, image.getPixel(x, y)); // 设置新图像像素
+    int newWidth = (int) width * ratio; // 新图像宽度
+    int newHeight = (int) height * ratio; // 新图像高度
+    int bitCount = image.getInfoHeader().biBitCount; // 颜色表大小
+    BMP newImage(newWidth, newHeight, bitCount); // 新图像
+    for (int i = 0; i < newWidth; i++) // 遍历新图像
+        for (int j = 0; j < newHeight; j++) { // 遍历新图像
+            if (bitCount == 24) { // 24位图像
+                // 每三个字节为一组，分别缩放
+                int x = (int) (i * 3 / ratio) / 3 * 3;
+                int y = (int) (j / ratio);
+                newImage.setPixel(i * 3, j, image.getPixel(x, y)); // 设置新图像像素
+                newImage.setPixel(i * 3 + 1, j, image.getPixel(x + 1, y)); // 设置新图像像素
+                newImage.setPixel(i * 3 + 2, j, image.getPixel(x + 2, y)); // 设置新图像像素
+            } else if (bitCount == 8) // 8位图像
+                newImage.setPixel(i, j, image.getPixel((int) (i / ratio), (int) (j / ratio))); // 设置新图像像素
+            else {
+                std::cout << "错误：不支持的颜色表大小" << std::endl;
+                break;
+            }
         }
-    }
     return newImage; // 返回新图像
 }
 
 BMP Exchange::translate(BMP &image, int x, int y) {
     int width = image.getInfoHeader().biWidth; // 图像宽度
     int height = image.getInfoHeader().biHeight; // 图像高度
-    int colorTableSize = image.getInfoHeader().biBitCount; // 颜色表大小
-    BMP newImage(width, height, image.getInfoHeader().biBitCount, false); // 新图像
-    for (int i = 0; i < height; i++) { // 遍历图像
-        int newY = i + y * colorTableSize / 8; // 新图像坐标
-        if (newY < 0 || newY >= height) { 
-            continue; // 越界
-        }
-        for (int j = 0; j < width; j++) { // 遍历图像
-            int newX = j + x * colorTableSize / 8; // 新图像坐标
-            if (newX < 0 || newX >= width) {
+    int bitCount = image.getInfoHeader().biBitCount; // 颜色表大小
+    BMP newImage(width, height, image.getInfoHeader().biBitCount); // 新图像
+    for (int i = 0; i < width; i++) // 遍历图像
+        for (int j = 0; j < height; j++) { // 遍历图像
+            int x1 = (int) (i - x);
+            int y1 = (int) (j + y);
+            if (x1 < 0 || y1 < 0 || x1 >= width || y1 >= height)
                 continue; // 越界
+            if (bitCount == 24) { // 24位图像
+                // 每三个字节为一组，分别平移
+                newImage.setPixel(i * 3, j, image.getPixel(x1 * 3, y1)); // 设置新图像像素
+                newImage.setPixel(i * 3 + 1, j, image.getPixel(x1 * 3 + 1, y1)); // 设置新图像像素
+                newImage.setPixel(i * 3 + 2, j, image.getPixel(x1 * 3 + 2, y1)); // 设置新图像像素
+            } else if (bitCount == 8) // 8位图像
+                newImage.setPixel(i, j, image.getPixel(x1, y1)); // 设置新图像像素
+            else {
+                std::cout << "错误：不支持的颜色表大小" << std::endl;
+                break;
             }
-            newImage.setPixel(newX, newY, image.getPixel(j, i)); // 设置新图像像素
         }
-    }
     return newImage; // 返回新图像
 }
 
 BMP Exchange::mirror(BMP &image, int mode) {
     int width = image.getInfoHeader().biWidth; // 图像宽度
     int height = image.getInfoHeader().biHeight; // 图像高度
-    int colorTableSize = image.getInfoHeader().biBitCount; // 颜色表大小
-    BMP newImage(width, height, image.getInfoHeader().biBitCount, false); // 新图像
-    switch (mode) {
-        case 1: // 水平镜像
-            for (int i = 0; i < height; i++) { // 遍历图像
-                for (int j = 0; j < width; j++) { // 遍历图像
-                    if (colorTableSize == 24) { // 24位图像
-                        // 每三个字节为一组，分别交换
-                        if (j % 3 == 0) {
-                            BYTE temp1[3] = {image.getPixel(j, i), image.getPixel(j + 1, i), image.getPixel(j + 2, i)};
-                            BYTE temp2[3] = {image.getPixel(width - j - 3, i), image.getPixel(width - j - 2, i), image.getPixel(width - j - 1, i)};
-                            newImage.setPixel(j, i, temp2[0]); // 设置新图像像素
-                            newImage.setPixel(j + 1, i, temp2[1]); // 设置新图像像素
-                            newImage.setPixel(j + 2, i, temp2[2]); // 设置新图像像素
-                            newImage.setPixel(width - j - 3, i, temp1[0]); // 设置新图像像素
-                            newImage.setPixel(width - j - 2, i, temp1[1]); // 设置新图像像素
-                            newImage.setPixel(width - j - 1, i, temp1[2]); // 设置新图像像素
-                        } else {
-                            continue;
-                        }
-                    } else if (colorTableSize == 8) {
-                        newImage.setPixel(j, i, image.getPixel(width - j - 1, i)); // 设置新图像像素
-                        newImage.setPixel(width - j - 1, i, image.getPixel(j, i)); // 设置新图像像素
-                    } else {
-                        std::cout << "错误：不支持的颜色表大小" << std::endl;
-                        break;
-                    }
+    int bitCount = image.getInfoHeader().biBitCount; // 颜色表大小
+    BMP newImage(width, height, bitCount); // 新图像
+    for (int i = 0; i < width; i++) // 遍历图像
+        for (int j = 0; j < height; j++) { // 遍历图像
+            if (bitCount == 24) { // 24位图像
+                // 每三个字节为一组，分别镜像
+                int x = i * 3;
+                int y = j;
+                if (mode == 1)// 水平镜像
+                    x = width * 3 - x - 3;
+                else if (mode == 2) // 垂直镜像
+                    y = height - y - 1;
+                else if (mode == 3) { // 对角镜像
+                    x = width * 3 - x - 3;
+                    y = height - y - 1;
+                } else {
+                    std::cout << "错误：不支持的镜像模式" << std::endl;
+                    break;
                 }
-            }
-            break;
-        case 2: // 垂直镜像
-            for (int i = 0; i < height; i++) { // 遍历图像
-                for (int j = 0; j < width; j++) { // 遍历图像
-                    if (colorTableSize == 24) { // 24位图像
-                        // 每三个字节为一组，分别交换
-                        if (j % 3 == 0) {
-                            BYTE temp1[3] = {image.getPixel(j, i), image.getPixel(j + 1, i), image.getPixel(j + 2, i)};
-                            BYTE temp2[3] = {image.getPixel(j, height - i - 1), image.getPixel(j + 1, height - i - 1), image.getPixel(j + 2, height - i - 1)};
-                            newImage.setPixel(j, i, temp2[0]); // 设置新图像像素
-                            newImage.setPixel(j + 1, i, temp2[1]); // 设置新图像像素
-                            newImage.setPixel(j + 2, i, temp2[2]); // 设置新图像像素
-                            newImage.setPixel(j, height - i - 1, temp1[0]); // 设置新图像像素
-                            newImage.setPixel(j + 1, height - i - 1, temp1[1]); // 设置新图像像素
-                            newImage.setPixel(j + 2, height - i - 1, temp1[2]); // 设置新图像像素
-                        } else {
-                            continue;
-                        }
-                    } else if (colorTableSize == 8) {
-                        newImage.setPixel(j, i, image.getPixel(j, height - i - 1)); // 设置新图像像素
-                        newImage.setPixel(j, height - i - 1, image.getPixel(j, i)); // 设置新图像像素
-                    } else {
-                        std::cout << "错误：不支持的颜色表大小" << std::endl;
-                        break;
-                    }
+                newImage.setPixel(i * 3, j, image.getPixel(x, y)); // 设置新图像像素
+                newImage.setPixel(i * 3 + 1, j, image.getPixel(x + 1, y)); // 设置新图像像素
+                newImage.setPixel(i * 3 + 2, j, image.getPixel(x + 2, y)); // 设置新图像像素
+            } else if (bitCount == 8) { // 8位图像
+                int x = i;
+                int y = j;
+                if (mode == 1) // 水平镜像
+                    x = width - x - 1;
+                else if (mode == 2) // 垂直镜像
+                    y = height - y - 1;
+                else if (mode == 3) { // 对角镜像
+                    x = width - x - 1;
+                    y = height - y - 1;
+                } else {
+                    std::cout << "错误：不支持的镜像模式" << std::endl;
+                    break;
                 }
+                newImage.setPixel(i, j, image.getPixel(x, y)); // 设置新图像像素
+            } else {
+                std::cout << "错误：不支持的颜色表大小" << std::endl;
+                break;
             }
-            break;
-        case 3: // 对角镜像
-            for (int i = 0; i < height; i++) { // 遍历图像
-                for (int j = 0; j < width; j++) { // 遍历图像
-                    if (colorTableSize == 24) { // 24位图像
-                        // 每三个字节为一组，分别交换
-                        if (j % 3 == 0) {
-                            BYTE temp1[3] = {image.getPixel(j, i), image.getPixel(j + 1, i), image.getPixel(j + 2, i)};
-                            BYTE temp2[3] = {image.getPixel(width - j - 3, height - i - 1), image.getPixel(width - j - 2, height - i - 1), image.getPixel(width - j - 1, height - i - 1)};
-                            newImage.setPixel(j, i, temp2[0]); // 设置新图像像素
-                            newImage.setPixel(j + 1, i, temp2[1]); // 设置新图像像素
-                            newImage.setPixel(j + 2, i, temp2[2]); // 设置新图像像素
-                            newImage.setPixel(width - j - 3, height - i - 1, temp1[0]); // 设置新图像像素
-                            newImage.setPixel(width - j - 2, height - i - 1, temp1[1]); // 设置新图像像素
-                            newImage.setPixel(width - j - 1, height - i - 1, temp1[2]); // 设置新图像像素
-                            continue;
-                        }
-                    } else if (colorTableSize == 8) {
-                        newImage.setPixel(j, i, image.getPixel(i, j)); // 设置新图像像素
-                        newImage.setPixel(i, j, image.getPixel(j, i)); // 设置新图像像素
-                    } else {
-                        std::cout << "错误：不支持的颜色表大小" << std::endl;
-                        break;
-                    }
-                }
-            }
-            break;
-        default:
-            break;
-    }
+        }
     return newImage; // 返回新图像
 }
 
 BMP Exchange::rotate(BMP &image, int angle) {
     int width = image.getInfoHeader().biWidth; // 图像宽度
     int height = image.getInfoHeader().biHeight; // 图像高度
-    int colorTableSize = image.getInfoHeader().biBitCount; // 颜色表大小
+    int bitCount = image.getInfoHeader().biBitCount; // 颜色表大小
     // 旋转中心
     int centerX = width / 2;
     int centerY = height / 2;
@@ -145,17 +116,107 @@ BMP Exchange::rotate(BMP &image, int angle) {
     int newCenterX = newWidth / 2;
     int newCenterY = newHeight / 2;
     // 新图像
-    BMP newImage(newWidth, newHeight, image.getInfoHeader().biBitCount, false);
-    for (int i = 0; i < newHeight; i++) { // 遍历新图像
-        for (int j = 0; j < newWidth; j++) { // 遍历新图像
-            // 原图像坐标
-            int x = (int) ((j - newCenterX) * cos(radian) + (i - newCenterY) * sin(radian) + centerX);
-            int y = (int) (-(j - newCenterX) * sin(radian) + (i - newCenterY) * cos(radian) + centerY);
-            if (x < 0 || x >= width || y < 0 || y >= height) {
+    BMP newImage(newWidth, newHeight, bitCount);
+    for (int i = 0; i < newWidth; i++) // 遍历新图像
+        for (int j = 0; j < newHeight; j++) { // 遍历新图像
+            // 旋转后的坐标
+            int x = (int) ((i - newCenterX) * cos(radian) - (j - newCenterY) * sin(radian) + centerX);
+            int y = (int) ((i - newCenterX) * sin(radian) + (j - newCenterY) * cos(radian) + centerY);
+            if (x < 0 || y < 0 || x >= width || y >= height)
                 continue; // 越界
+            if (bitCount == 24) { // 24位图像
+                // 每三个字节为一组，分别旋转
+                newImage.setPixel(i * 3, j, image.getPixel(x * 3, y)); // 设置新图像像素
+                newImage.setPixel(i * 3 + 1, j, image.getPixel(x * 3 + 1, y)); // 设置新图像像素
+                newImage.setPixel(i * 3 + 2, j, image.getPixel(x * 3 + 2, y)); // 设置新图像像素
+            } else if (bitCount == 8) // 8位图像
+                newImage.setPixel(i, j, image.getPixel(x, y)); // 设置新图像像素
+            else {
+                std::cout << "错误：不支持的颜色表大小" << std::endl;
+                break;
             }
-            newImage.setPixel(j, i, image.getPixel(x, y)); // 设置新图像像素
         }
+    return newImage; // 返回新图像
+}
+
+BMP Exchange::perspective(BMP &image, int point[8], int times) {
+    int width = image.getInfoHeader().biWidth; // 图像宽度
+    int height = image.getInfoHeader().biHeight; // 图像高度
+    int bitCount = image.getInfoHeader().biBitCount; // 颜色表大小
+    // 计算透视变换矩阵
+    double right[8] = {0, (double) height - 1, (double) width - 1, (double) height - 1, 0, 0, (double) width - 1, 0};
+    double left[8][8] = {
+            {(double) point[0], (double) point[1], 1, 0, 0, 0, (double) -point[0] * right[0], (double) -point[1] * right[0]},
+            {0, 0, 0, (double) point[0], (double) point[1], 1, (double) -point[0] * right[1], (double) -point[1] * right[1]},
+            {(double) point[2], (double) point[3], 1, 0, 0, 0, (double) -point[2] * right[2], (double) -point[3] * right[2]},
+            {0, 0, 0, (double) point[2], (double) point[3], 1, (double) -point[2] * right[3], (double) -point[3] * right[3]},
+            {(double) point[4], (double) point[5], 1, 0, 0, 0, (double) -point[4] * right[4], (double) -point[5] * right[4]},
+            {0, 0, 0, (double) point[4], (double) point[5], 1, (double) -point[4] * right[5], (double) -point[5] * right[5]},
+            {(double) point[6], (double) point[7], 1, 0, 0, 0, (double) -point[6] * right[6], (double) -point[7] * right[6]},
+            {0, 0, 0, (double) point[6], (double) point[7], 1, (double) -point[6] * right[7], (double) -point[7] * right[7]}
+    };
+    double matrix[8];
+    // 高斯消元法求解
+    int row, col;
+    double temp;
+    for (row = 0, col = 0; row < 8 && col < 8; col++) {
+        int max = col; // 主元
+        for (int i = row + 1; i < 8; i++) // 找到最大主元
+            if (fabs(left[i][col]) > fabs(left[max][col]))
+                max = i;
+        if (fabs(left[max][col]) < EPS) // 主元为0
+            continue;
+        if (max != row) { // 交换行
+            for (int i = 0; i < 8; i++)
+                std::swap(left[row][i], left[max][i]);
+            std::swap(right[row], right[max]);
+        }
+        // 消元
+        temp = left[row][col];
+        for (int i = col; i < 8; i++)
+            left[row][i] /= temp;
+        right[row] /= temp;
+        for (int i = row + 1; i < 8; i++)
+            if (fabs(left[i][col]) > EPS) {
+                temp = left[i][col];
+                for (int j = col; j < 8; j++)
+                    left[i][j] -= left[row][j] * temp;
+                right[i] -= right[row] * temp;
+            }
+        row++;
     }
+    if (row < 8) { // 无解 or 无穷多解
+        std::cout << "错误：无解 or 无穷多解" << std::endl;
+        return image;
+    }
+    // 回代
+    for (int i = 7; i >= 0; i--) {
+        matrix[i] = right[i];
+        for (int j = i + 1; j < 8; j++)
+            matrix[i] -= left[i][j] * matrix[j];
+    }
+    // 新图像
+    BMP newImage(width, height, bitCount);
+    // 将旧图像的每个像素点映射到新图像
+    for (int i = 0; i < width; i++) // 遍历图像
+        for (int j = 0; j < height; j++) { // 遍历图像
+            int x = (int) (matrix[0] * i + matrix[1] * j + matrix[2]); // 新图像x坐标
+            int y = (int) (matrix[3] * i + matrix[4] * j + matrix[5]); // 新图像y坐标
+            if (x < 0 || y < 0 || x >= width || y >= height)
+                continue; // 越界
+            if (bitCount == 24) { // 24位图像
+                // 每三个字节为一组，分别映射
+                newImage.setPixel(x * 3, y, image.getPixel(i * 3, j)); // 设置新图像像素
+                newImage.setPixel(x * 3 + 1, y, image.getPixel(i * 3 + 1, j)); // 设置新图像像素
+                newImage.setPixel(x * 3 + 2, y, image.getPixel(i * 3 + 2, j)); // 设置新图像像素
+            } else if (bitCount == 8) // 8位图像
+                newImage.setPixel(x, y, image.getPixel(i, j)); // 设置新图像像素
+            else {
+                std::cout << "错误：不支持的颜色表大小" << std::endl;
+                break;
+            }
+        }
+    for (int i = 0; i < times; i++) // 迭代
+        newImage = MedianFilter(3).apply(newImage); // 中值滤波
     return newImage; // 返回新图像
 }

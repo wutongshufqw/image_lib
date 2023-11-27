@@ -52,7 +52,7 @@ class BMP {
     public:
         BMP(); // 默认构造函数
         BMP(const BMP &bmp); // 拷贝构造函数
-        BMP(int width, int height, int bitCount = 24, bool real = true); // 创建空白画布
+        BMP(int width, int height, int bitCount = 24); // 创建空白画布
         ~BMP(); // 析构函数
 
         BMP& operator= (const BMP &bmp); // 赋值运算符重载

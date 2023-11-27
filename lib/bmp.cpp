@@ -99,13 +99,13 @@ BMP::BMP(const BMP &bmp) { // 拷贝构造函数
     ihead = bmp.ihead;
 }
 
-BMP::BMP(int width, int length, int bitCount, bool real) { // 创建空白画布
+BMP::BMP(int width, int length, int bitCount) { // 创建空白画布
     if (bitCount != 24 && bitCount != 8 && bitCount != 4 && bitCount != 1) {
         std::cout << "错误: 不支持的位数" << std::endl;
         return;
     }
     // 实际大小
-    int realWidth = real ? width * bitCount / 8 : width;
+    int realWidth = width * bitCount / 8;
     int realLength = length;
     // 每行字节数
     lineByte = (realWidth + 3) / 4 * 4;
@@ -133,8 +133,8 @@ BMP::BMP(int width, int length, int bitCount, bool real) { // 创建空白画布
     fhead.bfOffBits = sizeof(BMPFILEHEADER) + sizeof(BMPINFOHEADER) + sizeof(RGBQUAD) * colorTableSize;
     // 信息头
     ihead.biSize = sizeof(BMPINFOHEADER);
-    ihead.biWidth = realWidth;
-    ihead.biHeight = realLength;
+    ihead.biWidth = width;
+    ihead.biHeight = length;
     ihead.biPlanes = 1;
     ihead.biBitCount = bitCount;
     ihead.biCompression = 0;

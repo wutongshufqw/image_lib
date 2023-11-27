@@ -1,21 +1,20 @@
 #include "include/program.h"
 
 namespace program {
-
     void program1(Menu menu, std::string _path) {
         while (true) {
             int key = menu.start();
             try {
                 switch (key) {
                     case 1: {
-                        std::cout << "请输入原图像名称：";
+                        std::cout << "请输入原图像名称: ";
                         std::string path;
                         std::cin >> path;
                         path = _path + "/input/" + path + ".bmp";
                         BMP bmp;
                         bmp.readBmp(path);
                         BMP gray = bmp.grayScale();
-                        std::cout << "请输入灰度图像名称：";
+                        std::cout << "请输入灰度图像名称: ";
                         std::cin >> path;
                         path = _path + "/output/" + path + ".bmp";
                         gray.writeBmp(path);
@@ -23,14 +22,14 @@ namespace program {
                         break;
                     }
                     case 2: {
-                        std::cout << "请输入原图像名称：";
+                        std::cout << "请输入原图像名称: ";
                         std::string path;
                         std::cin >> path;
                         path = _path + "/input/" + path + ".bmp";
                         BMP bmp;
                         bmp.readBmp(path);
                         BMP reverse = bmp.grayScale().reverseColor();
-                        std::cout << "请输入反色图像名称：";
+                        std::cout << "请输入反色图像名称: ";
                         std::cin >> path;
                         path = _path + "/output/" + path + ".bmp";
                         reverse.writeBmp(path);
@@ -38,14 +37,14 @@ namespace program {
                         break;
                     }
                     case 3: {
-                        std::cout << "请输入原图像名称：";
+                        std::cout << "请输入原图像名称: ";
                         std::string path;
                         std::cin >> path;
                         path = _path + "/input/" + path + ".bmp";
                         BMP bmp;
                         bmp.readBmp(path);
                         BMP* split = bmp.splitColor();
-                        std::cout << "请输入三通道图像名称：";
+                        std::cout << "请输入三通道图像名称: ";
                         std::cin >> path;
                         for (int i = 0; i < 3; i++) {
                             BMP file = split[i];
@@ -73,14 +72,14 @@ namespace program {
             try {
                 switch (key) {
                     case 1: {
-                        std::cout << "请输入原图像名称：";
+                        std::cout << "请输入原图像名称: ";
                         std::string path;
                         std::cin >> path;
                         path = _path + "/input/" + path + ".bmp";
                         Histogram hist;
                         hist.readBmp(path);
                         Histogram histogram = hist.statistics();
-                        std::cout << "请输入直方图名称：";
+                        std::cout << "请输入直方图名称: ";
                         std::cin >> path;
                         path = _path + "/output/" + path + ".bmp";
                         histogram.writeBmp(path);
@@ -88,19 +87,19 @@ namespace program {
                         break;
                     }
                     case 2: {
-                        std::cout << "请输入原图像名称：";
+                        std::cout << "请输入原图像名称: ";
                         std::string path;
                         std::cin >> path;
                         path = _path + "/input/" + path + ".bmp";
                         Histogram hist;
                         hist.readBmp(path);
                         Histogram histogram = hist.balance();
-                        std::cout << "请输入均衡化图像名称：";
+                        std::cout << "请输入均衡化图像名称: ";
                         std::cin >> path;
                         path = _path + "/output/" + path + ".bmp";
                         histogram.writeBmp(path);
                         std::cout << "均衡化图像已保存至: " << path << std::endl;
-                        std::cout << "请输入均衡化直方图名称：";
+                        std::cout << "请输入均衡化直方图名称: ";
                         std::cin >> path;
                         path = _path + "/output/" + path + ".bmp";
                         histogram.statistics().writeBmp(path);
@@ -125,18 +124,18 @@ namespace program {
             try {
                 switch (key) {
                     case 1: {
-                        std::cout << "请输入原图像名称：";
+                        std::cout << "请输入原图像名称: ";
                         std::string path;
                         std::cin >> path;
                         path = _path + "/input/" + path + ".bmp";
                         BMP bmp;
                         bmp.readBmp(path);
-                        std::cout << "请输入滤波器大小：";
+                        std::cout << "请输入滤波器大小: ";
                         int size;
                         std::cin >> size;
                         MeanFilter filter(size);
                         bmp = filter.apply(bmp);
-                        std::cout << "请输入均值滤波器图像名称：";
+                        std::cout << "请输入均值滤波器图像名称: ";
                         std::cin >> path;
                         path = _path + "/output/" + path + ".bmp";
                         bmp.writeBmp(path);
@@ -144,18 +143,18 @@ namespace program {
                         break;
                     }
                     case 2: {
-                        std::cout << "请输入原图像名称：";
+                        std::cout << "请输入原图像名称: ";
                         std::string path;
                         std::cin >> path;
                         path = _path + "/input/" + path + ".bmp";
                         BMP bmp;
                         bmp.readBmp(path);
-                        std::cout << "请输入滤波器大小：";
+                        std::cout << "请输入滤波器大小: ";
                         int size;
                         std::cin >> size;
                         MedianFilter filter(size);
                         bmp = filter.apply(bmp);
-                        std::cout << "请输入中值滤波器图像名称：";
+                        std::cout << "请输入中值滤波器图像名称: ";
                         std::cin >> path;
                         path = _path + "/output/" + path + ".bmp";
                         bmp.writeBmp(path);
@@ -180,17 +179,17 @@ namespace program {
             try {
                 switch (key) {
                     case 1: {
-                        std::cout << "请输入原图像名称：";
+                        std::cout << "请输入原图像名称: ";
                         std::string path;
                         std::cin >> path;
                         path = _path + "/input/" + path + ".bmp";
                         BMP bmp;
                         bmp.readBmp(path);
-                        std::cout << "请输入缩放比例：";
+                        std::cout << "请输入缩放比例: ";
                         float ratio;
                         std::cin >> ratio;
                         BMP scale = Exchange::scale(bmp, ratio);
-                        std::cout << "请输入缩放图像名称：";
+                        std::cout << "请输入缩放图像名称: ";
                         std::cin >> path;
                         path = _path + "/output/" + path + ".bmp";
                         scale.writeBmp(path);
@@ -198,17 +197,17 @@ namespace program {
                         break;
                     }
                     case 2: {
-                        std::cout << "请输入原图像名称：";
+                        std::cout << "请输入原图像名称: ";
                         std::string path;
                         std::cin >> path;
                         path = _path + "/input/" + path + ".bmp";
                         BMP bmp;
                         bmp.readBmp(path);
-                        std::cout << "请输入平移距离[x, y]：";
+                        std::cout << "请输入平移距离[x, y]: ";
                         int x, y;
                         std::cin >> x >> y;
                         BMP translate = Exchange::translate(bmp, x, y);
-                        std::cout << "请输入平移图像名称：";
+                        std::cout << "请输入平移图像名称: ";
                         std::cin >> path;
                         path = _path + "/output/" + path + ".bmp";
                         translate.writeBmp(path);
@@ -216,17 +215,17 @@ namespace program {
                         break;
                     }
                     case 3: {
-                        std::cout << "请输入原图像名称：";
+                        std::cout << "请输入原图像名称: ";
                         std::string path;
                         std::cin >> path;
                         path = _path + "/input/" + path + ".bmp";
                         BMP bmp;
                         bmp.readBmp(path);
-                        std::cout << "请输入镜像模式(1:水平, 2:垂直, 3:对角)：";
+                        std::cout << "请输入镜像模式(1:水平, 2:垂直, 3:对角): ";
                         int mode;
                         std::cin >> mode;
                         BMP mirror = Exchange::mirror(bmp, mode);
-                        std::cout << "请输入镜像图像名称：";
+                        std::cout << "请输入镜像图像名称: ";
                         std::cin >> path;
                         path = _path + "/output/" + path + ".bmp";
                         mirror.writeBmp(path);
@@ -234,21 +233,43 @@ namespace program {
                         break;
                     }
                     case 4: {
-                        std::cout << "请输入原图像名称：";
+                        std::cout << "请输入原图像名称: ";
                         std::string path;
                         std::cin >> path;
                         path = _path + "/input/" + path + ".bmp";
                         BMP bmp;
                         bmp.readBmp(path);
-                        std::cout << "请输入旋转角度：";
+                        std::cout << "请输入旋转角度(顺时针, 单位: °): ";
                         int angle;
                         std::cin >> angle;
                         BMP rotate = Exchange::rotate(bmp, angle);
-                        std::cout << "请输入旋转图像名称：";
+                        std::cout << "请输入旋转图像名称: ";
                         std::cin >> path;
                         path = _path + "/output/" + path + ".bmp";
                         rotate.writeBmp(path);
                         std::cout << "旋转图像已保存至: " << path << std::endl;
+                        break;
+                    }
+                    case 5: {
+                        std::cout << "请输入原图像名称: ";
+                        std::string path;
+                        std::cin >> path;
+                        path = _path + "/input/" + path + ".bmp";
+                        BMP bmp;
+                        bmp.readBmp(path);
+                        std::cout << "请输入透视变换四个顶点坐标[x1, y1, x2, y2, x3, y3, x4, y4](顺序为左上, 右上, 左下, 右下): ";
+                        int point[8];
+                        for (int i = 0; i < 8; i++)
+                            std::cin >> point[i];
+                        std::cout << "请输入中值滤波次数: ";
+                        int times;
+                        std::cin >> times;
+                        BMP perspective = Exchange::perspective(bmp, point, times);
+                        std::cout << "请输入透视变换图像名称: ";
+                        std::cin >> path;
+                        path = _path + "/output/" + path + ".bmp";
+                        perspective.writeBmp(path);
+                        std::cout << "透视变换图像已保存至: " << path << std::endl;
                         break;
                     }
                     default:
