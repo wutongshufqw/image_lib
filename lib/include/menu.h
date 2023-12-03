@@ -2,6 +2,7 @@
 #define MENU_H
 #include <iostream>
 #include <string>
+#include <vector>
 
 #if defined(_WIN32) || defined(_WIN64)
     #include <conio.h>
@@ -30,17 +31,17 @@ class Menu {
         int _width = 40;
         int _selected = 1;
         int _size;
-        std::string* _options = nullptr;
+        std::vector<std::string> _options;
         std::string _title = "";
         std::string _footer = "";
     public:
-        Menu(int size, std::string* options, std::string title) {
+        Menu(int size, std::vector<std::string> options, std::string title) {
             _size = size;
             _options = options;
             _title = title;
         };
 
-        Menu(int size, std::string* options, std::string title, std::string footer) {
+        Menu(int size, std::vector<std::string> options, std::string title, std::string footer) {
             _size = size;
             _options = options;
             _title = title;

@@ -16,6 +16,6 @@ public:
     static BMP translate(BMP &image, int x, int y); // 平移
     static BMP mirror(BMP &image, int mode); // 镜像
     static BMP rotate(BMP &image, int angle); // 旋转
-    static BMP perspective(BMP &image, int point[8], int times); // 透视
+    static BMP perspective(BMP &image, double right[8]); // 透视
 };
 #endif

@@ -246,13 +246,10 @@ namespace program {
                         BMP bmp;
                         bmp.readBmp(path);
                         std::cout << "请输入透视变换四个顶点坐标[x1, y1, x2, y2, x3, y3, x4, y4](顺序为左上, 右上, 左下, 右下): ";
-                        int point[8];
+                        double point[8];
                         for (int i = 0; i < 8; i++)
                             std::cin >> point[i];
-                        std::cout << "请输入中值滤波次数: ";
-                        int times;
-                        std::cin >> times;
-                        BMP perspective = Exchange::perspective(bmp, point, times);
+                        BMP perspective = Exchange::perspective(bmp, point);
                         std::cout << "请输入透视变换图像名称: ";
                         std::cin >> path;
                         path = _path + "/output/" + path + ".bmp";
@@ -322,37 +319,23 @@ namespace program {
 }
 
 Program::Program(std::string path) {
+    std::vector<std::vector<std::string>> options = {
+        {"真彩图像转灰度图像", "灰度图像反色", "RGB三通道分离", "返回上一级"},
+        {"直方图统计", "直方图均衡化", "返回上一级"},
+        {"均值滤波器", "中值滤波器", "返回上一级"},
+        {"图像缩放", "图像平移", "图像镜像", "图像旋转", "图像透视", "返回上一级"},
+        {"给定阈值T", "迭代阈值法", "Ostu", "返回上一级"}
+    };
+    std::vector<std::string> titles = {
+        "BMP图像处理",
+        "直方图处理",
+        "图像滤波处理",
+        "图像变换",
+        "图像分割"
+    };
     _path = path;
-    _menus.push_back(Menu(4, new std::string[4] {
-        "真彩图像转灰度图像",
-        "灰度图像反色",
-        "RGB三通道分离",
-        "返回上一级"
-    }, "BMP图像处理", "按 ENTER 以继续"));
-    _menus.push_back(Menu(3, new std::string[3] {
-        "直方图统计",
-        "直方图均衡化",
-        "返回上一级"
-    }, "直方图处理", "按 ENTER 以继续"));
-    _menus.push_back(Menu(3, new std::string[3] {
-        "均值滤波器",
-        "中值滤波器",
-        "返回上一级"
-    }, "图像滤波处理", "按 ENTER 以继续"));
-    _menus.push_back(Menu(6, new std::string[6] {
-        "图像缩放",
-        "图像平移",
-        "图像镜像",
-        "图像旋转",
-        "图像透视",
-        "返回上一级"
-    }, "图像变换", "按 ENTER 以继续"));
-    _menus.push_back(Menu(4, new std::string[4] {
-        "给定阈值T",
-        "迭代阈值法",
-        "Ostu",
-        "返回上一级"
-    }, "图像变换", "按 ENTER 以继续"));
+    for (int i = 0; i < 5; i++)
+        _menus.push_back(Menu(options[i].size(), options[i], titles[i], "按 ENTER 以继续"));
 }
 
 void Program::start(int key) {

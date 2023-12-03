@@ -1,7 +1,7 @@
 #include "include/menu.h"
 
 namespace menu {
-    int getLength(const std::string &str) { // 获取字符串实际长度
+    int getLength(const std::string str) { // 获取字符串实际长度
         int length = 0;
         for (int i = 0; i < str.length(); i++) {
             if (str[i] < 0) {
@@ -37,7 +37,7 @@ namespace menu {
         return "│" + std::string(left - 1, ' ') + str + std::string(right - 1, ' ') + "│\n";
     }
 
-    std::string alignLeft(std::string *str, int size, int length, int select) { // 左对齐, 最右填充字符
+    std::string alignLeft(std::vector<std::string> str, int size, int length, int select) { // 左对齐, 最右填充字符
         int *strLength = new int[size];
         int maxLength = 0;
         for (int i = 0; i < size; i++) {

@@ -14,7 +14,7 @@ int main() { // 主函数
     std::string path_str = path;
     Program program(path_str); // 创建程序对象
     std::string title = "图像处理系统";
-    std::string options[] = {
+    std::vector<std::string> options = {
         "BMP图像处理",
         "直方图处理",
         "图像滤波处理",
@@ -23,7 +23,7 @@ int main() { // 主函数
         "退出"
     };
     std::string footer = "按 ENTER 以继续";
-    Menu menu(sizeof(options) / sizeof(options[0]), options, title, footer);
+    Menu menu(options.size(), options, title, footer);
     while (true) {
         int key = menu.start();
         if (key == sizeof(options) / sizeof(options[0])) {

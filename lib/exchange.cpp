@@ -131,21 +131,20 @@ BMP Exchange::rotate(BMP &image, int angle) {
     return newImage; // 返回新图像
 }
 
-BMP Exchange::perspective(BMP &image, int point[8], int times) {
+BMP Exchange::perspective(BMP &image, double right[8]) {
     int width = image.getInfoHeader().biWidth; // 图像宽度
     int height = image.getInfoHeader().biHeight; // 图像高度
     int bitCount = image.getInfoHeader().biBitCount; // 颜色表大小
     // 计算透视变换矩阵
-    double right[8] = {0, (double) height - 1, (double) width - 1, (double) height - 1, 0, 0, (double) width - 1, 0};
     double left[8][8] = {
-            {(double) point[0], (double) point[1], 1, 0, 0, 0, (double) -point[0] * right[0], (double) -point[1] * right[0]},
-            {0, 0, 0, (double) point[0], (double) point[1], 1, (double) -point[0] * right[1], (double) -point[1] * right[1]},
-            {(double) point[2], (double) point[3], 1, 0, 0, 0, (double) -point[2] * right[2], (double) -point[3] * right[2]},
-            {0, 0, 0, (double) point[2], (double) point[3], 1, (double) -point[2] * right[3], (double) -point[3] * right[3]},
-            {(double) point[4], (double) point[5], 1, 0, 0, 0, (double) -point[4] * right[4], (double) -point[5] * right[4]},
-            {0, 0, 0, (double) point[4], (double) point[5], 1, (double) -point[4] * right[5], (double) -point[5] * right[5]},
-            {(double) point[6], (double) point[7], 1, 0, 0, 0, (double) -point[6] * right[6], (double) -point[7] * right[6]},
-            {0, 0, 0, (double) point[6], (double) point[7], 1, (double) -point[6] * right[7], (double) -point[7] * right[7]}
+        {0, (double) height - 1, 1, 0, 0, 0, 0, (double) (1 - height) * right[0]},
+        {0, 0, 0, 0, (double) height - 1, 1, 0, (double) (1 - height) * right[1]},
+        {(double) width - 1, (double) height - 1, 1, 0, 0, 0, (double) (1 - width) * right[2], (double) (1 - height) * right[2]},
+        {0, 0, 0, (double) width - 1, (double) height - 1, 1, (double) (1 - width) * right[3], (double) (1 - height) * right[3]},
+        {0, 0, 1, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 1, 0, 0},
+        {(double) width - 1, 0, 1, 0, 0, 0, (double) (1 - width) * right[6], 0},
+        {0, 0, 0, (double) width - 1, 0, 1, (double) (1 - width) * right[7], 0}
     };
     double matrix[8];
     // 高斯消元法求解
@@ -190,23 +189,21 @@ BMP Exchange::perspective(BMP &image, int point[8], int times) {
     // 新图像
     BMP newImage(width, height, bitCount);
     // 将旧图像的每个像素点映射到新图像
-    for (int i = 0; i < width; i++) // 遍历图像
-        for (int j = 0; j < height; j++) { // 遍历图像
-            int x = (int) (matrix[0] * i + matrix[1] * j + matrix[2]); // 新图像x坐标
-            int y = (int) (matrix[3] * i + matrix[4] * j + matrix[5]); // 新图像y坐标
+    for (int i = 0; i < width; i++) // 遍历新图像
+        for (int j = 0; j < height; j++) { // 遍历新图像
+            int x = (int) (matrix[0] * i + matrix[1] * j + matrix[2]); // 旧图像x坐标
+            int y = (int) (matrix[3] * i + matrix[4] * j + matrix[5]); // 旧图像y坐标
             if (x < 0 || y < 0 || x >= width || y >= height)
                 continue; // 越界
             if (bitCount == 24) { // 24位图像
                 // 每三个字节为一组，分别映射
-                newImage.setPixel(x, y, image.getPixel(i * 3, j)); // 设置新图像像素
+                newImage.setPixel(i, j, image.getPixel(x * 3, y)); // 设置新图像像素
             } else if (bitCount == 8) // 8位图像
-                newImage.setPixel(x, y, *image.getPixel(i, j)); // 设置新图像像素
+                newImage.setPixel(i, j, *image.getPixel(x, y)); // 设置新图像像素
             else {
                 std::cout << "错误：不支持的颜色表大小" << std::endl;
                 break;
             }
         }
-    for (int i = 0; i < times; i++) // 迭代
-        newImage = MedianFilter(3).apply(newImage); // 中值滤波
     return newImage; // 返回新图像
 }
