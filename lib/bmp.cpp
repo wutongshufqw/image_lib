@@ -323,3 +323,16 @@ void BMP::setPixel(int x, int y, BYTE red, BYTE green, BYTE blue) { // 设置像
     bmpBuf[y * lineByte + x * 3 + 1] = green;
     bmpBuf[y * lineByte + x * 3 + 2] = red;
 }
+
+void BMP::fill(BYTE pixel) { // 填充
+    for (int i = 0; i < lineByte * ihead.biHeight; i++)
+        bmpBuf[i] = pixel;
+}
+
+void BMP::fill(BYTE* pixel) { // 填充
+    for (int i = 0; i < lineByte * ihead.biHeight; i += 3) {
+        bmpBuf[i] = *pixel;
+        bmpBuf[i + 1] = *(pixel + 1);
+        bmpBuf[i + 2] = *(pixel + 2);
+    }
+}

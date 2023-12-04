@@ -316,6 +316,64 @@ namespace program {
             menu.esc();
         }
     }
+
+    void program6(Menu menu, std::string _path) {
+        while (true) {
+            int key = menu.start();
+            try {
+                switch (key) {
+                    case 1: {
+                        std::cout << "请输入原图像名称: ";
+                        std::string path;
+                        std::cin >> path;
+                        path = _path + "/input/" + path + ".bmp";
+                        BMP bmp;
+                        bmp.readBmp(path);
+                        int mode = 0;
+                        while (mode != 1 && mode != 2) {
+                            std::cout << "请选择种子点模式[1:手动录入双点, 2:自动选取]: ";
+                            std::cin >> mode;
+                        }
+                        BMP region;
+                        if (mode == 1) {
+                            int point[4];
+                            std::cout << "请输入种子点坐标[x1, y1, x2, y2]: ";
+                            std::cin >> point[0] >> point[1] >> point[2] >> point[3];
+                            std::cout << "请输入阈值: ";
+                            int threshold;
+                            std::cin >> threshold;
+                            region = RegionGrow::grow(bmp, point, threshold);
+                        } else {
+                            std::cout << "请输入种子点灰度值基准: ";
+                            int base;
+                            std::cin >> base;
+                            std::cout << "请输入阈值: ";
+                            int threshold;
+                            std::cin >> threshold;
+                            region = RegionGrow::grow(bmp, base, threshold);
+                        }
+                        std::cout << "请输入区域生长图像名称: ";
+                        std::cin >> path;
+                        path = _path + "/output/" + path + ".bmp";
+                        region.writeBmp(path);
+                        std::cout << "区域生长图像已保存至: " << path << std::endl;
+                        break;
+                    }
+                    case 2: {
+                        
+                        break;
+                    }
+                    default:
+                        return;
+                }
+            } catch (std::exception e) {
+                std::cout << "错误: " << e.what() << std::endl;
+            }
+            // 清空输入缓冲区
+            std::cout << "按 ESC 以继续";
+            menu.esc();
+        }
+    }
 }
 
 Program::Program(std::string path) {
@@ -324,17 +382,19 @@ Program::Program(std::string path) {
         {"直方图统计", "直方图均衡化", "返回上一级"},
         {"均值滤波器", "中值滤波器", "返回上一级"},
         {"图像缩放", "图像平移", "图像镜像", "图像旋转", "图像透视", "返回上一级"},
-        {"给定阈值T", "迭代阈值法", "Ostu", "返回上一级"}
+        {"给定阈值T", "迭代阈值法", "Ostu", "返回上一级"},
+        {"基于种子点进行区域生长", "区域分裂", "返回上一级"}
     };
     std::vector<std::string> titles = {
         "BMP图像处理",
         "直方图处理",
         "图像滤波处理",
         "图像变换",
-        "图像分割"
+        "图像分割",
+        "基于区域的分割"
     };
     _path = path;
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < options.size(); i++)
         _menus.push_back(Menu(options[i].size(), options[i], titles[i], "按 ENTER 以继续"));
 }
 
@@ -354,6 +414,9 @@ void Program::start(int key) {
             break;
         case 5:
             program::program5(_menus[4], _path);
+            break;
+        case 6:
+            program::program6(_menus[5], _path);
             break;
         default:
             break;

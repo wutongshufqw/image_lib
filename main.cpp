@@ -20,13 +20,14 @@ int main() { // 主函数
         "图像滤波处理",
         "图像变换",
         "阈值分割",
+        "基于区域的分割",
         "退出"
     };
     std::string footer = "按 ENTER 以继续";
     Menu menu(options.size(), options, title, footer);
     while (true) {
         int key = menu.start();
-        if (key == sizeof(options) / sizeof(options[0])) {
+        if (key == options.size()) {
             menu.clear();
             break;
         } else

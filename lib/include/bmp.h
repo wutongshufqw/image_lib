@@ -72,5 +72,7 @@ class BMP {
         void setPixel(int x, int y, BYTE pixel); // 设置像素
         void setPixel(int x, int y, BYTE* pixel); // 设置像素
         void setPixel(int x, int y, BYTE red, BYTE green, BYTE blue); // 设置像素
+        void fill(BYTE pixel); // 填充
+        void fill(BYTE* pixel); // 填充
 };
 #endif

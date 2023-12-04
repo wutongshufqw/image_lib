@@ -7,6 +7,7 @@
 #include "filter.h"
 #include "histogram.h"
 #include "menu.h"
+#include "region_split.h"
 #include "threshold.h"
 
 class Program {
