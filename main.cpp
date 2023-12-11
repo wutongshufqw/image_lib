@@ -5,7 +5,7 @@ int main() { // 主函数
     // 获取程序执行路径
     char buf[256];
     #if defined(_WIN32) || defined(_WIN64)
-        _getcwd(path, sizeof(path));
+        _getcwd(buf, sizeof(buf));
         // 解决中文乱码问题
         system("chcp 65001");
     #elif defined(__linux__)
