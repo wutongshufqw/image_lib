@@ -57,8 +57,8 @@ namespace program {
                     default:
                         return;
                 }
-            } catch (std::exception e) {
-                std::cout << "错误: " << e.what() << std::endl;
+            } catch (const char* msg) {
+                std::cerr << msg << std::endl;
             }
             // 清空输入缓冲区
             std::cout << "按 ESC 以继续";
@@ -109,8 +109,8 @@ namespace program {
                     default:
                         return;
                 }
-            } catch (std::exception e) {
-                std::cout << "错误: " << e.what() << std::endl;
+            } catch (const char* msg) {
+                std::cerr << msg << std::endl;
             }
             // 清空输入缓冲区
             std::cout << "按 ESC 以继续";
@@ -152,8 +152,8 @@ namespace program {
                 path = _path + "/output/" + path + ".bmp";
                 result.writeBmp(path);
                 std::cout << "滤波图像已保存至: " << path << std::endl;
-            } catch (std::exception e) {
-                std::cout << "错误: " << e.what() << std::endl;
+            } catch (const char* msg) {
+                std::cerr << msg << std::endl;
             }
             // 清空输入缓冲区
             std::cout << "按 ESC 以继续";
@@ -260,8 +260,8 @@ namespace program {
                     default:
                         return;
                 }
-            } catch (std::exception e) {
-                std::cout << "错误: " << e.what() << std::endl;
+            } catch (const char* msg) {
+                std::cerr << msg << std::endl;
             }
             // 清空输入缓冲区
             std::cout << "按 ESC 以继续";
@@ -308,8 +308,8 @@ namespace program {
                 path = _path + "/output/" + path + ".bmp";
                 result.results[0].writeBmp(path);
                 std::cout << "给定阈值分割图像已保存至: " << path << std::endl;
-            } catch (std::exception e) {
-                std::cout << "错误: " << e.what() << std::endl;
+            } catch (const char* msg) {
+                std::cerr << msg << std::endl;
             }
             // 清空输入缓冲区
             std::cout << "按 ESC 以继续";
@@ -360,38 +360,114 @@ namespace program {
                         break;
                     }
                     case 2: {
-                        
+                        std::cout << "请输入原图像名称: ";
+                        std::string path;
+                        std::cin >> path;
+                        path = _path + "/input/" + path + ".bmp";
+                        BMP bmp;
+                        bmp.readBmp(path);
+                        std::cout << "请输入阈值: ";
+                        int threshold;
+                        std::cin >> threshold;
+                        BMP newBmp = RegionSplit::split(bmp, threshold);
+                        std::cout << "请输入区域分裂图像名称: ";
+                        std::cin >> path;
+                        path = _path + "/output/" + path + ".bmp";
+                        newBmp.writeBmp(path);
+                        std::cout << "区域分裂图像已保存至: " << path << std::endl;
                         break;
                     }
                     default:
                         return;
                 }
-            } catch (std::exception e) {
-                std::cout << "错误: " << e.what() << std::endl;
+            } catch (const char* msg) {
+                std::cerr << msg << std::endl;
             }
             // 清空输入缓冲区
             std::cout << "按 ESC 以继续";
             menu.esc();
         }
     }
+
+    void program7(Menu menu, std::string _path) {
+        while (true) {
+            int key = menu.start();
+            try {
+                std::cout << "请输入原图像名称: ";
+                std::string path;
+                std::cin >> path;
+                path = _path + "/input/" + path + ".bmp";
+                BMP bmp;
+                bmp.readBmp(path);
+                std::cout << "请输入输出阈值: ";
+                int threshold;
+                std::cin >> threshold;
+                EdgeOperator *op;
+                switch (key) {
+                    case 1:
+                        op = new PrewittOperator();
+                        break;
+                    case 2:
+                        op = new SobelOperator();
+                        break;
+                    case 3:
+                        op = new LOGOperator();
+                        break;
+                    default:
+                        throw "未知的边缘检测算子";
+                }
+                BMP edge = Edge(op, bmp, threshold).detect().getEdge();
+                std::cout << "请输入边缘检测图像名称: ";
+                std::cin >> path;
+                path = _path + "/output/" + path + ".bmp";
+                edge.writeBmp(path);
+                std::cout << "边缘检测图像已保存至: " << path << std::endl;
+            } catch (const char* msg) {
+                std::cerr << msg << std::endl;
+            }
+            // 清空输入缓冲区
+            std::cout << "按 ESC 以继续";
+            menu.esc();
+        }
+    }
+
+    void program8(Menu menu, std::string _path) {
+        while (true) {
+            int key = menu.start();
+            try {
+                
+            } catch (const char* msg) {
+                std::cerr << msg << std::endl;
+            }
+            // 清空输入缓冲区
+            std::cout << "按 ESC 以继续";
+            menu.esc();
+        }
+    }
+
+    // 函数指针数组
+    void (*programs[8])(Menu, std::string) = {
+        program1,
+        program2,
+        program3,
+        program4,
+        program5,
+        program6,
+        program7,
+        program8
+    };
 }
 
-Program::Program(std::string path) {
+Program::Program(std::string path, std::vector<std::string> titles) {
     std::vector<std::vector<std::string>> options = {
         {"真彩图像转灰度图像", "灰度图像反色", "RGB三通道分离", "返回上一级"},
         {"直方图统计", "直方图均衡化", "返回上一级"},
         {"均值滤波器", "中值滤波器", "返回上一级"},
         {"图像缩放", "图像平移", "图像镜像", "图像旋转", "图像透视", "返回上一级"},
         {"给定阈值T", "迭代阈值法", "Ostu", "返回上一级"},
-        {"基于种子点进行区域生长", "区域分裂", "返回上一级"}
-    };
-    std::vector<std::string> titles = {
-        "BMP图像处理",
-        "直方图处理",
-        "图像滤波处理",
-        "图像变换",
-        "图像分割",
-        "基于区域的分割"
+        {"基于种子点进行区域生长", "区域分裂", "返回上一级"},
+        {"Prewitt", "Sobel", "LOG", "返回上一级"},
+        {"直线检测", "返回上一级"}
     };
     _path = path;
     for (int i = 0; i < options.size(); i++)
@@ -399,26 +475,7 @@ Program::Program(std::string path) {
 }
 
 void Program::start(int key) {
-    switch (key) {
-        case 1:
-            program::program1(_menus[0], _path);
-            break;
-        case 2:
-            program::program2(_menus[1], _path);
-            break;
-        case 3:
-            program::program3(_menus[2], _path);
-            break;
-        case 4:
-            program::program4(_menus[3], _path);
-            break;
-        case 5:
-            program::program5(_menus[4], _path);
-            break;
-        case 6:
-            program::program6(_menus[5], _path);
-            break;
-        default:
-            break;
-    }
+    if (key < 1 || key > 8)
+        throw "发生错误：未知的程序";
+    program::programs[key - 1](_menus[key - 1], _path);
 }

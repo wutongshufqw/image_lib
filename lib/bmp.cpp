@@ -1,14 +1,10 @@
 #include "include/bmp.h"
 
 void BMP::_grayScale() { // 灰度化(内部函数)
-    if (ihead.biBitCount != 24) {
-        std::cout << "错误: 不支持的位数" << std::endl;
-        return;
-    }
-    if (!bmpBuf) {
-        std::cout << "错误: 位图数据为空" << std::endl;
-        return;
-    }
+    if (ihead.biBitCount != 24)
+        throw "错误: 不支持的位数";
+    if (!bmpBuf)
+        throw "错误: 位图数据为空";
     int gray;
     // 计算调色板
     colorTable = new RGBQUAD[256];
@@ -42,10 +38,8 @@ void BMP::_grayScale() { // 灰度化(内部函数)
 }
 
 void BMP::_reverseColor() { // 反色(内部函数)
-    if (!bmpBuf) {
-        std::cout << "错误: 位图数据为空" << std::endl;
-        return;
-    }
+    if (!bmpBuf)
+        throw "错误: 位图数据为空";
     if (ihead.biBitCount == 24)
         for (LONG i = 0; i < ihead.biHeight; i++)
             for (LONG j = 0; j < ihead.biWidth; j++) {
@@ -75,10 +69,8 @@ void BMP::_reverseColor() { // 反色(内部函数)
                 bmpBuf[i * ihead.biWidth / 8 + j] = (bmpBuf[i * ihead.biWidth / 8 + j] << 2) + (255 - bmpBuf[i * ihead.biWidth / 8 + j]);
                 bmpBuf[i * ihead.biWidth / 8 + j] = (bmpBuf[i * ihead.biWidth / 8 + j] << 1) + (255 - bmpBuf[i * ihead.biWidth / 8 + j]);
             }
-    else {
-        std::cout << "错误: 不支持的位数" << std::endl;
-        return;
-    }
+    else
+        throw "错误: 不支持的位数";
     std::cout << "反色成功" << std::endl;
 }
 
@@ -100,10 +92,8 @@ BMP::BMP(const BMP &bmp) { // 拷贝构造函数
 }
 
 BMP::BMP(int width, int length, int bitCount) { // 创建空白画布
-    if (bitCount != 24 && bitCount != 8 && bitCount != 4 && bitCount != 1) {
-        std::cout << "错误: 不支持的位数" << std::endl;
-        return;
-    }
+    if (bitCount != 24 && bitCount != 8 && bitCount != 4 && bitCount != 1)
+        throw "错误: 不支持的位数";
     // 实际大小
     int realWidth = width * bitCount / 8;
     int realLength = length;
@@ -149,17 +139,12 @@ BMP::BMP(int width, int length, int bitCount) { // 创建空白画布
 }
 
 BMP::~BMP() { // 析构函数
-    delete[] bmpBuf;
-    delete[] colorTable;
 }
 
 
 BMP& BMP::operator= (const BMP &bmp) { // 赋值运算符重载
     if (this == &bmp)
         return *this;
-    delete[] bmpBuf;
-    if (colorTable)
-        delete[] colorTable;
     lineByte = bmp.lineByte;
     bmpBuf = new BYTE[lineByte * bmp.ihead.biHeight];
     std::copy(bmp.bmpBuf, bmp.bmpBuf + lineByte * bmp.ihead.biHeight, bmpBuf);
@@ -174,15 +159,11 @@ BMP& BMP::operator= (const BMP &bmp) { // 赋值运算符重载
 
 void BMP::readBmp(std::string filename) { // 读取位图
     std::ifstream ifile(filename, std::ios::binary);
-    if (!ifile) {
-        std::cout << "错误: 无法打开文件" << std::endl;
-        return;
-    }
+    if (!ifile)
+        throw "错误: 无法打开文件";
     ifile.read((char *)&fhead, sizeof(BMPFILEHEADER)); // 读取文件头
-    if (fhead.bfType != 0x4D42) { // 判断是否为bmp文件
-        std::cout << "错误: 不是BMP文件" << std::endl;
-        return;
-    }
+    if (fhead.bfType != 0x4D42) // 判断是否为bmp文件
+        throw "错误: 不是BMP文件";
     ifile.read((char *)&ihead, sizeof(BMPINFOHEADER)); // 读取信息头
     // 根据位数计算调色板大小
     switch (ihead.biBitCount) {
@@ -220,15 +201,11 @@ void BMP::readBmp(std::string filename) { // 读取位图
 }
 
 void BMP::writeBmp(std::string filename) { // 写入位图
-    if (!bmpBuf) {
-        std::cout << "错误: 位图数据为空" << std::endl;
-        return;
-    }
+    if (!bmpBuf)
+        throw "错误: 位图数据为空";
     std::ofstream ofile(filename, std::ios::binary);
-    if (!ofile) {
-        std::cout << "错误: 无法打开文件" << std::endl;
-        return;
-    }
+    if (!ofile)
+        throw "错误: 无法打开文件";
     ofile.write((char *)&fhead, sizeof(BMPFILEHEADER)); // 写入文件头
     ofile.write((char *)&ihead, sizeof(BMPINFOHEADER)); // 写入信息头
     ofile.write((char *)colorTable, colorTableSize * sizeof(RGBQUAD)); // 写入调色板
@@ -249,14 +226,10 @@ BMP BMP::reverseColor() {
 }
 
 BMP* BMP::splitColor() { // RGB三通道分离
-    if (!bmpBuf) {
-        std::cout << "错误: 位图数据为空" << std::endl;
-        return NULL;
-    }
-    if (ihead.biBitCount != 24) {
-        std::cout << "错误: 不支持的位数" << std::endl;
-        return NULL;
-    }
+    if (!bmpBuf)
+        throw "错误: 位图数据为空";
+    if (ihead.biBitCount != 24)
+        throw "错误: 不支持的位数";
     BMP *bmp = new BMP[3];
     for (int i = 0; i < 3; i++) {
         bmp[i] = BMP(*this);
@@ -303,19 +276,30 @@ BYTE* BMP::getBmpBuf() { // 获取位图数据
     return bmpBuf;
 }
 
+
+int BMP::getWidth() { // 获取宽度
+    return ihead.biWidth;
+}
+
+int BMP::getHeight() { // 获取高度
+    return ihead.biHeight;
+}
+
+int BMP::getBitCount() { // 获取颜色位数
+    return ihead.biBitCount;
+}
+
+
 BYTE* BMP::getPixel(int x, int y) { // 获取像素
     return &bmpBuf[y * lineByte + x];
 }
-
 
 void BMP::setPixel(int x, int y, BYTE pixel) { // 设置像素
     bmpBuf[y * lineByte + x] = pixel;
 }
 
 void BMP::setPixel(int x, int y, BYTE* pixel) { // 设置像素
-    bmpBuf[y * lineByte + x * 3] = *pixel;
-    bmpBuf[y * lineByte + x * 3 + 1] = *(pixel + 1);
-    bmpBuf[y * lineByte + x * 3 + 2] = *(pixel + 2);
+    setPixel(x, y, pixel[0], pixel[1], pixel[2]);
 }
 
 void BMP::setPixel(int x, int y, BYTE red, BYTE green, BYTE blue) { // 设置像素
@@ -324,15 +308,128 @@ void BMP::setPixel(int x, int y, BYTE red, BYTE green, BYTE blue) { // 设置像
     bmpBuf[y * lineByte + x * 3 + 2] = red;
 }
 
+
+BYTE* BMP::getWindows(int x, int y, int width, int height) { // 获取窗口
+    if (ihead.biBitCount == 8) { // 8位
+        BYTE *buf = new BYTE[width * height];
+        for (int i = 0; i < height; i++)
+            for (int j = 0; j < width; j++)
+                buf[i * width + j] = bmpBuf[(y + i) * ihead.biWidth + x + j];
+        return buf;
+    } else if (ihead.biBitCount == 24) { // 24位
+        BYTE **buf = new BYTE*[width * height];
+        for (int i = 0; i < height; i++)
+            for (int j = 0; j < width; j++) {
+                buf[i * width + j] = new BYTE[3];
+                buf[i * width + j][0] = bmpBuf[(y + i) * lineByte + (x + j) * 3];
+                buf[i * width + j][1] = bmpBuf[(y + i) * lineByte + (x + j) * 3 + 1];
+                buf[i * width + j][2] = bmpBuf[(y + i) * lineByte + (x + j) * 3 + 2];
+            }
+        return (BYTE *)buf;
+    } else
+        throw "错误: 不支持的位数";
+}
+
+
 void BMP::fill(BYTE pixel) { // 填充
     for (int i = 0; i < lineByte * ihead.biHeight; i++)
         bmpBuf[i] = pixel;
 }
 
 void BMP::fill(BYTE* pixel) { // 填充
+    fill(pixel[0], pixel[1], pixel[2]);
+}
+
+void BMP::fill(BYTE red, BYTE green, BYTE blue) { // 填充
     for (int i = 0; i < lineByte * ihead.biHeight; i += 3) {
-        bmpBuf[i] = *pixel;
-        bmpBuf[i + 1] = *(pixel + 1);
-        bmpBuf[i + 2] = *(pixel + 2);
+        bmpBuf[i] = blue;
+        bmpBuf[i + 1] = green;
+        bmpBuf[i + 2] = red;
     }
+}
+
+
+void BMP::drawLine(int x1, int y1, int x2, int y2, BYTE pixel) { // 画线
+    if (x1 == x2) {
+        if (y1 > y2)
+            std::swap(y1, y2);
+        for (int i = y1; i <= y2; i++)
+            setPixel(x1, i, pixel);
+    } else if (y1 == y2) {
+        if (x1 > x2)
+            std::swap(x1, x2);
+        for (int i = x1; i <= x2; i++)
+            setPixel(i, y1, pixel);
+    } else {
+        double k = (double) (y2 - y1) / (x2 - x1);
+        if (std::abs(k) <= 1) {
+            if (x1 > x2) {
+                std::swap(x1, x2);
+                std::swap(y1, y2);
+            }
+            for (int i = x1; i <= x2; i++)
+                setPixel(i, (int) (y1 + k * (i - x1)), pixel);
+        } else {
+            if (y1 > y2) {
+                std::swap(x1, x2);
+                std::swap(y1, y2);
+            }
+            for (int i = y1; i <= y2; i++)
+                setPixel((int) (x1 + (i - y1) / k), i, pixel);
+        }
+    }
+}
+
+void BMP::drawLine(int x1, int y1, int x2, int y2, BYTE* pixel) { // 画线
+    drawLine(x1, y1, x2, y2, pixel[0], pixel[1], pixel[2]);
+}
+
+void BMP::drawLine(int x1, int y1, int x2, int y2, BYTE red, BYTE green, BYTE blue) { // 画线
+    if (x1 == x2) {
+        if (y1 > y2)
+            std::swap(y1, y2);
+        for (int i = y1; i <= y2; i++)
+            setPixel(x1, i, red, green, blue);
+    } else if (y1 == y2) {
+        if (x1 > x2)
+            std::swap(x1, x2);
+        for (int i = x1; i <= x2; i++)
+            setPixel(i, y1, red, green, blue);
+    } else {
+        double k = (double) (y2 - y1) / (x2 - x1);
+        if (std::abs(k) <= 1) {
+            if (x1 > x2) {
+                std::swap(x1, x2);
+                std::swap(y1, y2);
+            }
+            for (int i = x1; i <= x2; i++)
+                setPixel(i, (int) (y1 + k * (i - x1)), red, green, blue);
+        } else {
+            if (y1 > y2) {
+                std::swap(x1, x2);
+                std::swap(y1, y2);
+            }
+            for (int i = y1; i <= y2; i++)
+                setPixel((int) (x1 + (i - y1) / k), i, red, green, blue);
+        }
+    }
+}
+
+
+void BMP::drawRect(int x, int y, int width, int height, BYTE pixel) { // 画矩形
+    drawLine(x, y, x + width, y, pixel);
+    drawLine(x, y, x, y + height, pixel);
+    drawLine(x + width, y, x + width, y + height, pixel);
+    drawLine(x, y + height, x + width, y + height, pixel);
+}
+
+void BMP::drawRect(int x, int y, int width, int height, BYTE* pixel) { // 画矩形
+    drawRect(x, y, width, height, pixel[0], pixel[1], pixel[2]);
+}
+
+void BMP::drawRect(int x, int y, int width, int height, BYTE red, BYTE green, BYTE blue) { // 画矩形
+    drawLine(x, y, x + width, y, red, green, blue);
+    drawLine(x, y, x, y + height, red, green, blue);
+    drawLine(x + width, y, x + width, y + height, red, green, blue);
+    drawLine(x, y + height, x + width, y + height, red, green, blue);
 }

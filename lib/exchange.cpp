@@ -16,10 +16,8 @@ BMP Exchange::scale(BMP &image, float ratio) { // 缩放
                 newImage.setPixel(i, j, image.getPixel(x, y)); // 设置新图像像素
             } else if (bitCount == 8) // 8位图像
                 newImage.setPixel(i, j, *image.getPixel((int) (i / ratio), (int) (j / ratio))); // 设置新图像像素
-            else {
-                std::cout << "错误：不支持的颜色表大小" << std::endl;
-                break;
-            }
+            else
+                throw "错误：不支持的颜色表大小";
         }
     return newImage; // 返回新图像
 }
@@ -40,10 +38,8 @@ BMP Exchange::translate(BMP &image, int x, int y) {
                 newImage.setPixel(i, j, image.getPixel(x1 * 3, y1)); // 设置新图像像素
             } else if (bitCount == 8) // 8位图像
                 newImage.setPixel(i, j, *image.getPixel(x1, y1)); // 设置新图像像素
-            else {
-                std::cout << "错误：不支持的颜色表大小" << std::endl;
-                break;
-            }
+            else
+                throw "错误：不支持的颜色表大小";
         }
     return newImage; // 返回新图像
 }
@@ -66,10 +62,8 @@ BMP Exchange::mirror(BMP &image, int mode) {
                 else if (mode == 3) { // 对角镜像
                     x = width * 3 - x - 3;
                     y = height - y - 1;
-                } else {
-                    std::cout << "错误：不支持的镜像模式" << std::endl;
-                    break;
-                }
+                } else
+                    throw "错误：不支持的镜像模式";
                 newImage.setPixel(i, j, image.getPixel(x, y)); // 设置新图像像素
             } else if (bitCount == 8) { // 8位图像
                 int x = i;
@@ -81,15 +75,11 @@ BMP Exchange::mirror(BMP &image, int mode) {
                 else if (mode == 3) { // 对角镜像
                     x = width - x - 1;
                     y = height - y - 1;
-                } else {
-                    std::cout << "错误：不支持的镜像模式" << std::endl;
-                    break;
-                }
+                } else
+                    throw "错误：不支持的镜像模式";
                 newImage.setPixel(i, j, *image.getPixel(x, y)); // 设置新图像像素
-            } else {
-                std::cout << "错误：不支持的颜色表大小" << std::endl;
-                break;
-            }
+            } else
+                throw "错误：不支持的颜色表大小";
         }
     return newImage; // 返回新图像
 }
@@ -123,10 +113,8 @@ BMP Exchange::rotate(BMP &image, int angle) {
                 newImage.setPixel(i, j, image.getPixel(x * 3, y)); // 设置新图像像素
             } else if (bitCount == 8) // 8位图像
                 newImage.setPixel(i, j, *image.getPixel(x, y)); // 设置新图像像素
-            else {
-                std::cout << "错误：不支持的颜色表大小" << std::endl;
-                break;
-            }
+            else
+                throw "错误：不支持的颜色表大小";
         }
     return newImage; // 返回新图像
 }
@@ -176,10 +164,8 @@ BMP Exchange::perspective(BMP &image, double right[8]) {
             }
         row++;
     }
-    if (row < 8) { // 无解 or 无穷多解
-        std::cout << "错误：无解 or 无穷多解" << std::endl;
-        return image;
-    }
+    if (row < 8) // 无解 or 无穷多解
+        throw "错误：输入参数错误";
     // 回代
     for (int i = 7; i >= 0; i--) {
         matrix[i] = right[i];
@@ -200,10 +186,8 @@ BMP Exchange::perspective(BMP &image, double right[8]) {
                 newImage.setPixel(i, j, image.getPixel(x * 3, y)); // 设置新图像像素
             } else if (bitCount == 8) // 8位图像
                 newImage.setPixel(i, j, *image.getPixel(x, y)); // 设置新图像像素
-            else {
-                std::cout << "错误：不支持的颜色表大小" << std::endl;
-                break;
-            }
+            else
+                throw "错误：不支持的颜色表大小";
         }
     return newImage; // 返回新图像
 }

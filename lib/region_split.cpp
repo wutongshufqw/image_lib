@@ -124,3 +124,57 @@ BMP RegionGrow::grow(BMP &bmp, int base, int threshold) {
     return newBmp;
 }
     
+BMP RegionSplit::split(BMP &bmp, int threshold) {
+    // 如果不是灰度图像, 则先灰度化
+    if (bmp.getInfoHeader().biBitCount != 8)
+        bmp = bmp.grayScale();
+    // 获取图像宽度和高度
+    int width = bmp.getInfoHeader().biWidth;
+    int height = bmp.getInfoHeader().biHeight;
+    // 创建新的图像
+    BMP newBmp(bmp);
+    // 创建队列
+    std::queue<Region> queue;
+    // 将整个图像入队
+    queue.push(Region(0, 0, width, height));
+    // 创建结果数组
+    std::vector<Region> regions;
+    // 当队列不为空时
+    while (!queue.empty()) {
+        // 出队
+        Region region = queue.front();
+        queue.pop();
+        // 最大值和最小值
+        BYTE max = 0, min = 255;
+        // 遍历区域内的所有像素
+        for (int i = region.x; i < region.x + region.width; i++)
+            for (int j = region.y; j < region.y + region.height; j++) {
+                // 获取像素值
+                BYTE pixel = *bmp.getPixel(i, j);
+                // 更新最大值和最小值
+                if (pixel > max)
+                    max = pixel;
+                if (pixel < min)
+                    min = pixel;
+            }
+        // 如果最大值和最小值的差大于阈值
+        if (max - min > threshold) {
+            // 将区域分裂为四个子区域
+            queue.push(Region(region.x, region.y, region.width / 2, region.height / 2));
+            queue.push(Region(region.x + region.width / 2, region.y, region.width / 2, region.height / 2));
+            queue.push(Region(region.x, region.y + region.height / 2, region.width / 2, region.height / 2));
+            queue.push(Region(region.x + region.width / 2, region.y + region.height / 2, region.width / 2, region.height / 2));
+        } else {
+            // 将区域加入结果数组
+            regions.push_back(region);
+        }
+    }
+    // 遍历结果数组
+    for (int i = 0; i < regions.size(); i++) {
+        // 获取区域
+        Region region = regions[i];
+        // 绘制区域
+        newBmp.drawRect(region.x, region.y, region.width, region.height, (BYTE) 0);
+    }
+    return newBmp;
+}

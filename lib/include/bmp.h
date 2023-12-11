@@ -67,12 +67,28 @@ class BMP {
         BMPFILEHEADER getFileHeader(); // 获取文件头
         BMPINFOHEADER getInfoHeader(); // 获取信息头
         BYTE* getBmpBuf(); // 获取位图数据
+
+        int getWidth(); // 获取宽度
+        int getHeight(); // 获取高度
+        int getBitCount(); // 获取颜色位数
+
         BYTE* getPixel(int x, int y); // 获取像素
-    
         void setPixel(int x, int y, BYTE pixel); // 设置像素
         void setPixel(int x, int y, BYTE* pixel); // 设置像素
         void setPixel(int x, int y, BYTE red, BYTE green, BYTE blue); // 设置像素
+
+        BYTE* getWindows(int x, int y, int width, int height); // 获取窗口
+
         void fill(BYTE pixel); // 填充
         void fill(BYTE* pixel); // 填充
+        void fill(BYTE red, BYTE green, BYTE blue); // 填充
+
+        void drawLine(int x1, int y1, int x2, int y2, BYTE pixel); // 画线
+        void drawLine(int x1, int y1, int x2, int y2, BYTE* pixel); // 画线
+        void drawLine(int x1, int y1, int x2, int y2, BYTE red, BYTE green, BYTE blue); // 画线
+
+        void drawRect(int x, int y, int width, int height, BYTE pixel); // 画矩形
+        void drawRect(int x, int y, int width, int height, BYTE* pixel); // 画矩形
+        void drawRect(int x, int y, int width, int height, BYTE red, BYTE green, BYTE blue); // 画矩形
 };
 #endif

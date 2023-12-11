@@ -1,14 +1,10 @@
 #include "include/histogram.h"
 
 void Histogram::_statistics(bool output = false) { // 统计直方图
-    if (!bmpBuf) {
-        std::cout << "错误: 位图数据为空" << std::endl;
-        return;
-    }
-    if (ihead.biBitCount != 8) {
-        std::cout << "错误: 位图位数不为8" << std::endl;
-        return;
-    }
+    if (!bmpBuf)
+        throw "错误: 未加载图像";
+    if (ihead.biBitCount != 8)
+        throw "错误: 不支持的颜色表大小";
     if (_histogram) delete[] _histogram; // 防止内存泄漏
     _histogram = new int[256];
     memset(_histogram, 0, sizeof(int) * 256);

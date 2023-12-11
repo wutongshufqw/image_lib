@@ -3,6 +3,7 @@
 #include <list>
 #include <vector>
 #include "bmp.h"
+#include "edge.h"
 #include "exchange.h"
 #include "filter.h"
 #include "histogram.h"
@@ -15,7 +16,7 @@ class Program {
         std::string _path;
         std::vector<Menu> _menus;
     public:
-        Program(std::string);
+        Program(std::string path, std::vector<std::string> titles);
         void start(int index);
 };
 #endif
