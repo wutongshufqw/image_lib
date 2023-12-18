@@ -6,6 +6,8 @@ current_path = os.path.abspath(__file__)
 # img to bmp
 def img2bmp(jpg_path, bmp_path):
     img = Image.open(jpg_path)
+    # 转换为 24 位像素模式
+    img = img.convert('RGB')
     img.save(bmp_path)
     
 if __name__ == '__main__':

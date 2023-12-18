@@ -1,4 +1,17 @@
-#include "include/region_split.h"
+#include "include/region.h"
+
+namespace region_color {
+    // 获取从赤橙黄绿青蓝紫颜色
+    BYTE color[7][3] = {
+        {255, 0, 0},
+        {255, 127, 0},
+        {255, 255, 0},
+        {0, 255, 0},
+        {0, 255, 255},
+        {0, 0, 255},
+        {255, 0, 255}
+    };
+}
 
 BMP RegionGrow::grow(BMP &bmp, int *point, int threshold) {
     // 如果不是灰度图像, 则先灰度化
@@ -177,4 +190,151 @@ BMP RegionSplit::split(BMP &bmp, int threshold) {
         newBmp.drawRect(region.x, region.y, region.width, region.height, (BYTE) 0);
     }
     return newBmp;
+}
+
+EqualTable::EqualTable() {}
+
+int EqualTable::add(int x, int y) {
+    count++;
+    table[count] = std::vector<Point>();
+    table[count].push_back(Point(x, y));
+    return count;
+}
+
+int EqualTable::add(int x, int y, int count) {
+    table[count].push_back(Point(x, y));
+    return count;
+}
+
+int EqualTable::find(int x, int y) {
+    for (auto it = table.begin(); it != table.end(); it++)
+        for (int i = 0; i < it->second.size(); i++)
+            if (it->second[i].x == x && it->second[i].y == y)
+                return it->first;
+    return -1;
+}
+
+int EqualTable::merge(int a, int b) {
+    if (a == b)
+        return a;
+    else if (a > b)
+        std::swap(a, b);
+    for (int i = 0; i < table[b].size(); i++)
+        table[a].push_back(table[b][i]);
+    table.erase(b);
+    return a;
+}
+
+std::unordered_map<int, std::vector<Point>> EqualTable::getTable() {
+    return table;
+}
+
+std::vector<Point> EqualTable::getPoints(int count) {
+    return table[count];
+}
+
+int EqualTable::getCount() {
+    return count;
+}
+
+RegionLabel::RegionLabel(BMP &origin) {
+    if (origin.getInfoHeader().biBitCount != 8)
+        origin = origin.grayScale();
+    this->origin = origin;
+}
+
+RegionLabel RegionLabel::label() {
+    // 获取图像宽度和高度
+    int width = origin.getInfoHeader().biWidth;
+    int height = origin.getInfoHeader().biHeight;
+    // 图像2值化
+    origin = origin.binarize();
+    // 构建等价表
+    EqualTable table;
+    // 遍历图像
+    for (int i = 0; i < height; i++)
+        for (int j = 0; j < width; j++) {
+            if (*origin.getPixel(i, j) != 255) // 如果当前像素不是白色
+                continue;
+            if (i == 0 && j == 0) { // 如果是第一个像素
+                table.add(i, j); // 添加到等价表
+                continue;
+            }
+            if (i == 0) { // 如果是第一行
+                if (*origin.getPixel(i, j - 1) == 255) { // 如果左边的像素是白色
+                    table.add(i, j, table.find(i, j - 1)); // 添加到等价表, 并与左边的像素合并
+                    continue;
+                }
+                table.add(i, j); // 添加到等价表
+                continue;
+            }
+            if (j == 0) { // 如果是第一列
+                BYTE top = *origin.getPixel(i - 1, j); // 获取上面的像素值
+                BYTE topRight = *origin.getPixel(i - 1, j + 1); // 获取右上角的像素值
+                int topLabel = top == 255 ? table.find(i - 1, j) : -1; // 获取上面的像素的标签
+                int topRightLabel = topRight == 255 ? table.find(i - 1, j + 1) : -1; // 获取右上角的像素的标签
+                if (topLabel > 0 && topRightLabel > 0) { // 如果上面的像素和右上角的像素都是白色
+                    table.add(i, j, table.merge(topLabel, topRightLabel)); // 添加到等价表, 并与上面的像素和右上角的像素合并
+                    continue;
+                }
+                if (topLabel > 0) { // 如果上面的像素是白色
+                    table.add(i, j, topLabel); // 添加到等价表, 并与上面的像素合并
+                    continue;
+                }
+                table.add(i, j); // 添加到等价表
+            }
+            BYTE left = *origin.getPixel(i, j - 1); // 获取左边的像素值
+            BYTE topLeft = *origin.getPixel(i - 1, j - 1); // 获取左上角的像素值
+            BYTE top = *origin.getPixel(i - 1, j); // 获取上面的像素值
+            BYTE topRight = *origin.getPixel(i - 1, j + 1); // 获取右上角的像素值
+            int leftLabel = left == 255 ? table.find(i, j - 1) : -1; // 获取左边的像素的标签
+            int topLeftLabel = topLeft == 255 ? table.find(i - 1, j - 1) : -1; // 获取左上角的像素的标签
+            int topLabel = top == 255 ? table.find(i - 1, j) : -1; // 获取上面的像素的标签
+            int topRightLabel = topRight == 255 ? table.find(i - 1, j + 1) : -1; // 获取右上角的像素的标签
+            std::vector<int> labels; // 标签数组
+            if (leftLabel > 0) // 如果左边的像素是白色
+                labels.push_back(leftLabel); // 将左边的像素的标签加入标签数组
+            if (topLeftLabel > 0) // 如果左上角的像素是白色
+                labels.push_back(topLeftLabel); // 将左上角的像素的标签加入标签数组
+            if (topLabel > 0) // 如果上面的像素是白色
+                labels.push_back(topLabel); // 将上面的像素的标签加入标签数组
+            if (topRightLabel > 0) // 如果右上角的像素是白色
+                labels.push_back(topRightLabel); // 将右上角的像素的标签加入标签数组
+            if (labels.size() == 0) { // 如果标签数组为空
+                table.add(i, j); // 添加到等价表
+                continue;
+            }
+            if (labels.size() == 1) { // 如果标签数组只有一个元素
+                table.add(i, j, labels[0]); // 添加到等价表, 并与标签数组中的元素合并
+                continue;
+            }
+            // 如果标签数组有多个元素
+            int count = labels[0]; // 获取第一个元素
+            for (int k = 1; k < labels.size(); k++) // 将标签数组中的元素两两合并
+                count = table.merge(count, labels[k]);
+            table.add(i, j, count); // 添加到等价表, 并与合并后的元素合并
+        }
+    // 获取等价表中的所有标签
+    std::vector<int> labels;
+    std::unordered_map<int, std::vector<Point>> t = table.getTable();
+    for (auto it = t.begin(); it != t.end(); it++)
+        labels.push_back(it->first);
+    result = origin.grayToColor();
+    // 遍历标签数组
+    for (int i = 0; i < labels.size(); i++) {
+        // 获取标签
+        int label = labels[i];
+        // 获取标签对应的所有点
+        std::vector<Point> points = table.getPoints(label);
+        BYTE *color = region_color::color[i % 7];
+        // 遍历所有点
+        for (int j = 0; j < points.size(); j++)
+            // 绘制点
+            result.setPixel(points[j].x, points[j].y, color);
+    }
+    return *this;
+}
+
+BMP RegionLabel::getResult() {
+    return result;
 }

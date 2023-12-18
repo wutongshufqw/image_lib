@@ -1,9 +1,5 @@
 #include "include/edge.h"
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
 namespace {
     double* gaussian(int size) { // 生成高斯模板
         double *g = new double[size * size];
@@ -11,7 +7,7 @@ namespace {
         for (int i = 0; i < size * size; i++) {
             int x = i / size - size / 2;
             int y = i % size - size / 2;
-            g[i] = exp(-(x * x + y * y) / 2.0) / (2 * M_PI);
+            g[i] = exp(-(x * x + y * y) / 2.0) / (2 * PI);
             sum += g[i];
         }
         for (int i = 0; i < size * size; i++)

@@ -1,16 +1,7 @@
 #ifndef MENU_H
 #define MENU_H
-#include <iostream>
-#include <string>
-#include <vector>
 
-#if defined(_WIN32) || defined(_WIN64)
-    #include <conio.h>
-    #include <direct.h>
-#elif defined(__linux__)
-    #include <termios.h>
-    #include <unistd.h>
-#endif
+#include "include.h"
 
 namespace menu {
     const unsigned char UP = 1;
@@ -55,6 +46,6 @@ class Menu {
         void clear();
         void up();
         void down();
-        void esc();
+        static void esc();
 };
 #endif

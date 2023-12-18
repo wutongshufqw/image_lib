@@ -1,11 +1,8 @@
 #ifndef EXCHANGE_H
 #define EXCHANGE_H
-#include <cmath>
 #include "bmp.h"
 #include "filter.h"
-
-#define PI acos(-1)
-#define EPS 1e-6
+#include "include.h"
 
 class Exchange {
     public:

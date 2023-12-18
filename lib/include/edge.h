@@ -1,7 +1,8 @@
 #ifndef EDGE_H
 #define EDGE_H
-#include <cmath>
+
 #include "bmp.h"
+#include "include.h"
 
 class EdgeOperator { // 边缘检测算子
     public:

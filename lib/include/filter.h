@@ -1,7 +1,8 @@
 #ifndef FILTER_H
 #define FILTER_H
-#include <algorithm>
+
 #include "bmp.h"
+#include "include.h"
 
 //  滤波器基类
 class Filter {

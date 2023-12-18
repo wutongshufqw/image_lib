@@ -1,0 +1,3 @@
+5 1 lena 5_1_output 128 // 主程式 子程式 输入文件 输出文件 阈值
+5 2 lena 5_2_output
+5 3 lena 5_3_output

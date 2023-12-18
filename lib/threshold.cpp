@@ -1,15 +1,18 @@
 #include "include/threshold.h"
 
 HistogramThreshold::HistogramThreshold(BMP& bmp) {
+    if (bmp.getInfoHeader().biBitCount != 8)
+        bmp = bmp.grayScale();
     _bmp = bmp;
 }
 
 HistogramThresholdGiven::HistogramThresholdGiven(BMP& bmp): HistogramThreshold(bmp) {}
 
-ThresholdType HistogramThresholdGiven::threshold() {
-    std::cout << "请输入阈值T: ";
-    int threshold;
-    std::cin >> threshold;
+ThresholdType HistogramThresholdGiven::threshold(int threshold) {
+    if (!threshold) {
+        std::cout << "请输入阈值T: ";
+        std::cin >> threshold;
+    }
     ThresholdType result;
     BMP histogram(256, 256, 24);
     Histogram hist(_bmp);
@@ -56,7 +59,7 @@ ThresholdType HistogramThresholdGiven::threshold() {
 
 HistogramThresholdIterative::HistogramThresholdIterative(BMP& bmp): HistogramThreshold(bmp) {}
 
-ThresholdType HistogramThresholdIterative::threshold() {
+ThresholdType HistogramThresholdIterative::threshold(int threshold) {
     ThresholdType result;
     BMP histogram(256, 256, 24);
     Histogram hist(_bmp);
@@ -79,7 +82,7 @@ ThresholdType HistogramThresholdIterative::threshold() {
     result.results = new BMP[1];
     result.results[0] = BMP(width, height, 8);
     // 迭代阈值分割
-    int threshold = 128;
+    threshold = 128;
     int lastThreshold = 0;
     while (abs(threshold - lastThreshold) > 1) {
         lastThreshold = threshold;
@@ -118,7 +121,7 @@ ThresholdType HistogramThresholdIterative::threshold() {
 
 HistogramThresholdOtsu::HistogramThresholdOtsu(BMP& bmp): HistogramThreshold(bmp) {}
 
-ThresholdType HistogramThresholdOtsu::threshold() {
+ThresholdType HistogramThresholdOtsu::threshold(int threshold) {
     ThresholdType result;
     BMP histogram(256, 256, 24);
     Histogram hist(_bmp);
@@ -141,7 +144,7 @@ ThresholdType HistogramThresholdOtsu::threshold() {
     result.results = new BMP[1];
     result.results[0] = BMP(width, height, 8);
     // Otsu阈值分割
-    int threshold = 0;
+    threshold = 0;
     int maxVariance = 0;
     double pixel[256];
     for (int i = 0; i < 256; i++)

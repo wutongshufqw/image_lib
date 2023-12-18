@@ -1,6 +1,6 @@
 #include "include/bmp.h"
 
-void BMP::_grayScale() { // 灰度化(内部函数)
+void BMP::_grayScale(bool info) { // 灰度化(内部函数)
     if (ihead.biBitCount != 24)
         throw "错误: 不支持的位数";
     if (!bmpBuf)
@@ -15,17 +15,18 @@ void BMP::_grayScale() { // 灰度化(内部函数)
         colorTable[i].rgbReserved = 0;
     }
     // 计算灰度图
-    BYTE *grayBuf = new BYTE[lineByte * ihead.biHeight / 3];
-    for (LONG i = 0; i < ihead.biHeight; i++)
-        for (LONG j = 0; j < ihead.biWidth; j++) {
-            gray = (int) (0.114 * bmpBuf[i * lineByte + j * 3] + 0.587 * bmpBuf[i * lineByte + j * 3 + 1] + 0.299 * bmpBuf[i * lineByte + j * 3 + 2]);
-            grayBuf[i * ihead.biWidth + j] = gray;
-        }
-    // 更新每行字节数
-    lineByte = (ihead.biWidth * 8 + 31) / 32 * 4;
     // 更新信息头
     ihead.biBitCount = 8;
-    ihead.biSizeImage = lineByte * ihead.biHeight / 3;
+    // 更新每行字节数
+    int originalLineByte = lineByte; // 原始每行字节数
+    lineByte = (ihead.biWidth * ihead.biBitCount / 8 + 3) / 4 * 4; // 4字节对齐
+    ihead.biSizeImage = lineByte * ihead.biHeight;
+    BYTE *grayBuf = new BYTE[lineByte * ihead.biHeight];
+    for (LONG i = 0; i < ihead.biHeight; i++)
+        for (LONG j = 0; j < ihead.biWidth; j++) {
+            gray = (BYTE) (0.114 * bmpBuf[i * originalLineByte + j * 3] + 0.587 * bmpBuf[i * originalLineByte + j * 3 + 1] + 0.299 * bmpBuf[i * originalLineByte + j * 3 + 2]);
+            grayBuf[i * lineByte + j] = gray;
+        }
     // 更新文件头
     fhead.bfSize = ihead.biSizeImage + sizeof(BMPFILEHEADER) + sizeof(BMPINFOHEADER) + sizeof(RGBQUAD) * 256;
     fhead.bfOffBits = sizeof(BMPFILEHEADER) + sizeof(BMPINFOHEADER) + sizeof(RGBQUAD) * 256;
@@ -34,10 +35,11 @@ void BMP::_grayScale() { // 灰度化(内部函数)
     bmpBuf = grayBuf;
     // 更新调色板大小
     colorTableSize = 256;
-    std::cout << "灰度化成功" << std::endl;
+    if (info)
+        std::cout << "灰度化成功" << std::endl;
 }
 
-void BMP::_reverseColor() { // 反色(内部函数)
+void BMP::_reverseColor(bool info) { // 反色(内部函数)
     if (!bmpBuf)
         throw "错误: 位图数据为空";
     if (ihead.biBitCount == 24)
@@ -71,13 +73,16 @@ void BMP::_reverseColor() { // 反色(内部函数)
             }
     else
         throw "错误: 不支持的位数";
-    std::cout << "反色成功" << std::endl;
+    if (info)
+        std::cout << "反色成功" << std::endl;
 }
 
 
 BMP::BMP() { // 构造函数
-    lineByte = 0; // 每行字节数
-    bmpBuf = new unsigned char; // 位图数据
+    lineByte = 0;
+    bmpBuf = nullptr;
+    colorTableSize = 0;
+    colorTable = nullptr;
 }
 
 BMP::BMP(const BMP &bmp) { // 拷贝构造函数
@@ -85,8 +90,12 @@ BMP::BMP(const BMP &bmp) { // 拷贝构造函数
     bmpBuf = new BYTE[lineByte * bmp.ihead.biHeight];
     std::copy(bmp.bmpBuf, bmp.bmpBuf + lineByte * bmp.ihead.biHeight, bmpBuf);
     colorTableSize = bmp.colorTableSize;
-    colorTable = new RGBQUAD[colorTableSize];
-    std::copy(bmp.colorTable, bmp.colorTable + colorTableSize, colorTable);
+    if (colorTableSize) {
+        colorTable = new RGBQUAD[colorTableSize];
+        std::copy(bmp.colorTable, bmp.colorTable + colorTableSize, colorTable);
+    } else {
+        colorTable = nullptr;
+    }
     fhead = bmp.fhead;
     ihead = bmp.ihead;
 }
@@ -149,15 +158,19 @@ BMP& BMP::operator= (const BMP &bmp) { // 赋值运算符重载
     bmpBuf = new BYTE[lineByte * bmp.ihead.biHeight];
     std::copy(bmp.bmpBuf, bmp.bmpBuf + lineByte * bmp.ihead.biHeight, bmpBuf);
     colorTableSize = bmp.colorTableSize;
-    colorTable = new RGBQUAD[colorTableSize];
-    std::copy(bmp.colorTable, bmp.colorTable + colorTableSize, colorTable);
+    if (colorTableSize) {
+        colorTable = new RGBQUAD[colorTableSize];
+        std::copy(bmp.colorTable, bmp.colorTable + colorTableSize, colorTable);
+    } else {
+        colorTable = nullptr;
+    }
     fhead = bmp.fhead;
     ihead = bmp.ihead;
     return *this;
 }
         
 
-void BMP::readBmp(std::string filename) { // 读取位图
+BMP BMP::readBmp(std::string filename, bool info) { // 读取位图
     std::ifstream ifile(filename, std::ios::binary);
     if (!ifile)
         throw "错误: 无法打开文件";
@@ -183,24 +196,32 @@ void BMP::readBmp(std::string filename) { // 读取位图
         throw "Error: Unsupported bit count.";
     }
     // 读取调色板
-    colorTable = new RGBQUAD[colorTableSize];
-    ifile.read((char *)colorTable, colorTableSize * sizeof(RGBQUAD));
+    if (colorTableSize) {
+        colorTable = new RGBQUAD[colorTableSize];
+        ifile.read((char *)colorTable, colorTableSize * sizeof(RGBQUAD));
+    } else {
+        colorTable = nullptr;
+    }
     // 计算每行字节数
     lineByte = (ihead.biWidth * ihead.biBitCount / 8 + 3) / 4 * 4; // 4字节对齐
     // 读取位图数据
     bmpBuf = new BYTE[lineByte * ihead.biHeight];
     ifile.read((char *)bmpBuf, lineByte * ihead.biHeight);
     ifile.close();
-    std::cout << "BMP 文件读取成功" << std::endl;
-    std::cout << "文件大小: " << fhead.bfSize << std::endl;
-    std::cout << "位图宽度: " << ihead.biWidth << std::endl;
-    std::cout << "位图高度: " << ihead.biHeight << std::endl;
-    std::cout << "位图位数: " << ihead.biBitCount << std::endl;
-    std::cout << "调色板大小: " << colorTableSize << std::endl;
-    std::cout << "每行字节数: " << lineByte << std::endl;
+    if (info) {
+        std::cout << "BMP 文件读取成功" << std::endl;
+        std::cout << "文件大小: " << fhead.bfSize << std::endl;
+        std::cout << "位图宽度: " << ihead.biWidth << std::endl;
+        std::cout << "位图高度: " << ihead.biHeight << std::endl;
+        std::cout << "位图位数: " << ihead.biBitCount << std::endl;
+        std::cout << "位图大小: " << ihead.biSizeImage << std::endl;
+        std::cout << "调色板大小: " << colorTableSize << std::endl;
+        std::cout << "每行字节数: " << lineByte << std::endl;
+    }
+    return *this;
 }
 
-void BMP::writeBmp(std::string filename) { // 写入位图
+BMP BMP::writeBmp(std::string filename, bool info) { // 写入位图
     if (!bmpBuf)
         throw "错误: 位图数据为空";
     std::ofstream ofile(filename, std::ios::binary);
@@ -211,21 +232,82 @@ void BMP::writeBmp(std::string filename) { // 写入位图
     ofile.write((char *)colorTable, colorTableSize * sizeof(RGBQUAD)); // 写入调色板
     ofile.write((char *)bmpBuf, lineByte * ihead.biHeight); // 写入位图数据
     ofile.close();
+    if (info) {
+        std::cout << "BMP 文件读取成功" << std::endl;
+        std::cout << "文件大小: " << fhead.bfSize << std::endl;
+        std::cout << "位图宽度: " << ihead.biWidth << std::endl;
+        std::cout << "位图高度: " << ihead.biHeight << std::endl;
+        std::cout << "位图位数: " << ihead.biBitCount << std::endl;
+        std::cout << "位图大小: " << ihead.biSizeImage << std::endl;
+        std::cout << "调色板大小: " << colorTableSize << std::endl;
+        std::cout << "每行字节数: " << lineByte << std::endl;
+    }
+    return *this;
 }
 
-BMP BMP::grayScale() { // 灰度化
+BMP BMP::grayScale(bool info) { // 灰度化
     BMP bmp(*this);
-    bmp._grayScale();
+    bmp._grayScale(info);
     return bmp;
 }
 
-BMP BMP::reverseColor() {
+BMP BMP::grayToColor(bool info) { // 灰度图转彩色图
+    if (!bmpBuf)
+        throw "错误: 位图数据为空";
+    if (ihead.biBitCount != 8)
+        throw "错误: 不支持的位数";
     BMP bmp(*this);
-    bmp._reverseColor();
+    // 更新信息头
+    bmp.ihead.biBitCount = 24;
+    // 更新每行字节数
+    int originalLineByte = lineByte; // 原始每行字节数
+    bmp.lineByte = (ihead.biWidth * bmp.ihead.biBitCount / 8 + 3) / 4 * 4; // 4字节对齐
+    bmp.ihead.biSizeImage = bmp.lineByte * ihead.biHeight;
+    BYTE *colorBuf = new BYTE[bmp.lineByte * ihead.biHeight];
+    for (LONG i = 0; i < ihead.biHeight; i++)
+        for (LONG j = 0; j < ihead.biWidth; j++) {
+            colorBuf[i * bmp.lineByte + j * 3] = bmp.colorTable[bmpBuf[i * originalLineByte + j]].rgbBlue;
+            colorBuf[i * bmp.lineByte + j * 3 + 1] = bmp.colorTable[bmpBuf[i * originalLineByte + j]].rgbGreen;
+            colorBuf[i * bmp.lineByte + j * 3 + 2] = bmp.colorTable[bmpBuf[i * originalLineByte + j]].rgbRed;
+        }
+    bmp.colorTable = nullptr;
+    // 更新文件头
+    bmp.fhead.bfSize = bmp.ihead.biSizeImage + sizeof(BMPFILEHEADER) + sizeof(BMPINFOHEADER);
+    bmp.fhead.bfOffBits = sizeof(BMPFILEHEADER) + sizeof(BMPINFOHEADER);
+    // 更新位图数据
+    delete[] bmp.bmpBuf;
+    bmp.bmpBuf = colorBuf;
+    // 更新调色板大小
+    bmp.colorTableSize = 0;
+    if (info)
+        std::cout << "灰度图转彩色图成功" << std::endl;
     return bmp;
 }
 
-BMP* BMP::splitColor() { // RGB三通道分离
+BMP BMP::reverseColor(bool info) {
+    BMP bmp(*this);
+    bmp._reverseColor(info);
+    return bmp;
+}
+
+BMP BMP::binarize(bool info) {
+    if (!bmpBuf)
+        throw "错误: 位图数据为空";
+    if (ihead.biBitCount != 8)
+        _grayScale();
+    BMP bmp(*this);
+    int width = bmp.getWidth();
+    int height = bmp.getHeight();
+    BYTE* buf = bmp.getBmpBuf();
+    for (int i = 0; i < height; i++)
+        for (int j = 0; j < width; j++)
+            buf[i * width + j] = buf[i * width + j] > 127 ? 255 : 0;
+    if (info)
+        std::cout << "2值化成功" << std::endl;
+    return bmp;
+}
+
+BMP* BMP::splitColor(bool info) { // RGB三通道分离
     if (!bmpBuf)
         throw "错误: 位图数据为空";
     if (ihead.biBitCount != 24)
@@ -255,7 +337,8 @@ BMP* BMP::splitColor() { // RGB三通道分离
         bmp[i].bmpBuf = buf;
         bmp[i].colorTableSize = 256;
     }
-    std::cout << "RGB三通道分离成功" << std::endl;
+    if (info)
+        std::cout << "RGB三通道分离成功" << std::endl;
     return bmp;
 }
 
@@ -413,6 +496,25 @@ void BMP::drawLine(int x1, int y1, int x2, int y2, BYTE red, BYTE green, BYTE bl
                 setPixel((int) (x1 + (i - y1) / k), i, red, green, blue);
         }
     }
+}
+
+
+void BMP::drawStraightLine(int r, int theta, BYTE pixel) { // 画直线
+    for (int i = 0; i < ihead.biWidth; i++)
+        for (int j = 0; j < ihead.biHeight; j++)
+            if (r == (int) ((i * cos(theta * PI / 180) + j * sin(theta * PI / 180)) * 10))
+                setPixel(i, j, pixel);
+}
+
+void BMP::drawStraightLine(int r, int theta, BYTE* pixel) { // 画直线
+    drawStraightLine(r, theta, pixel[0], pixel[1], pixel[2]);
+}
+
+void BMP::drawStraightLine(int r, int theta, BYTE red, BYTE green, BYTE blue) { // 画直线
+    for (int i = 0; i < ihead.biWidth; i++)
+        for (int j = 0; j < ihead.biHeight; j++)
+            if (r == (int) ((i * cos(theta * PI / 180) + j * sin(theta * PI / 180)) * 10))
+                setPixel(i, j, red, green, blue);
 }
 
 

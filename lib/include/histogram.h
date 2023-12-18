@@ -1,7 +1,8 @@
 #ifndef HISTOGRAM_H
 #define HISTOGRAM_H
-#include <cstring>
+
 #include "bmp.h"
+#include "include.h"
 
 class Histogram: public BMP {
     private:

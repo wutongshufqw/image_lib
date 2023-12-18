@@ -1,7 +1,7 @@
 #ifndef BMP_H
 #define BMP_H
-#include <iostream>
-#include <fstream>
+
+#include "include.h"
 
 #define WORD unsigned short
 #define DWORD unsigned int
@@ -47,8 +47,8 @@ class BMP {
         RGBQUAD *colorTable = nullptr; // 调色板
         BMPFILEHEADER fhead; // 文件头
         BMPINFOHEADER ihead; // 信息头
-        void _grayScale(); // 灰度化(内部函数)
-        void _reverseColor(); // 反色(内部函数)
+        void _grayScale(bool info = false); // 灰度化(内部函数)
+        void _reverseColor(bool info = false); // 反色(内部函数)
     public:
         BMP(); // 默认构造函数
         BMP(const BMP &bmp); // 拷贝构造函数
@@ -57,11 +57,13 @@ class BMP {
 
         BMP& operator= (const BMP &bmp); // 赋值运算符重载
 
-        void readBmp(std::string filename); // 读取位图
-        void writeBmp(std::string filename); // 写入位图
-        BMP grayScale(); // 灰度化
-        BMP reverseColor(); // 反色
-        BMP *splitColor(); // 拆分RGB通道
+        BMP readBmp(std::string filename, bool info = false); // 读取位图
+        BMP writeBmp(std::string filename, bool info = false); // 写入位图
+        BMP grayScale(bool info = false); // 灰度化
+        BMP grayToColor(bool info = false); // 灰度转彩色
+        BMP reverseColor(bool info = false); // 反色
+        BMP binarize(bool info = false); // 2值化
+        BMP *splitColor(bool info = false); // 拆分RGB通道
 
         int getLineByte(); // 获取每行字节数
         BMPFILEHEADER getFileHeader(); // 获取文件头
@@ -83,10 +85,14 @@ class BMP {
         void fill(BYTE* pixel); // 填充
         void fill(BYTE red, BYTE green, BYTE blue); // 填充
 
-        void drawLine(int x1, int y1, int x2, int y2, BYTE pixel); // 画线
-        void drawLine(int x1, int y1, int x2, int y2, BYTE* pixel); // 画线
-        void drawLine(int x1, int y1, int x2, int y2, BYTE red, BYTE green, BYTE blue); // 画线
+        void drawLine(int x1, int y1, int x2, int y2, BYTE pixel); // 画线段
+        void drawLine(int x1, int y1, int x2, int y2, BYTE* pixel); // 画线段
+        void drawLine(int x1, int y1, int x2, int y2, BYTE red, BYTE green, BYTE blue); // 画线段
 
+        void drawStraightLine(int r, int theta, BYTE pixel); // 画直线
+        void drawStraightLine(int r, int theta, BYTE* pixel); // 画直线
+        void drawStraightLine(int r, int theta, BYTE red, BYTE green, BYTE blue); // 画直线
+        
         void drawRect(int x, int y, int width, int height, BYTE pixel); // 画矩形
         void drawRect(int x, int y, int width, int height, BYTE* pixel); // 画矩形
         void drawRect(int x, int y, int width, int height, BYTE red, BYTE green, BYTE blue); // 画矩形

@@ -1,0 +1,3 @@
+7 1 lena 7_1_output 255 // 主程式 子程式 输入文件 输出文件 阈值
+7 2 lena 7_2_output 255
+7 3 lena 7_3_output 70
