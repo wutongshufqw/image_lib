@@ -14,7 +14,6 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
 
 add_compile_options(-Wall -g)
 if(MSVC)
-    add_definitions(-std = c ++ 11)
     target_compile_options(main PRIVATE -O2 "/utf-8")
 else()
     target_compile_options(main PRIVATE -g -O2)
